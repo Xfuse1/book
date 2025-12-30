@@ -155,38 +155,92 @@ export default function Home() {
                         <SitemapIcon />
                     </motion.div>
 
-                    {/* Existing Cube (repositioned) */}
+                    {/* --- MAIN IMAGE ASSETS --- */}
+
+                    {/* 1. Flow/Process (Top Left) */}
+                    <motion.div
+                        className="floating-asset asset-flow"
+                        style={{ top: '15%', left: '5%', width: '200px', height: '200px', zIndex: 2 }}
+                        animate={{
+                            y: [0, 30, 0],
+                            rotate: [2, -2, 2],
+                        }}
+                        transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                        <Image src="/assets/flow.png" alt="Process Flow" fill style={{ objectFit: 'contain', opacity: 0.6 }} />
+                    </motion.div>
+
+                    {/* 2. Quality Badge (Top Right) */}
+                    <motion.div
+                        className="floating-asset asset-quality"
+                        style={{ top: '18%', right: '8%', width: '160px', height: '160px', zIndex: 2 }}
+                        animate={{
+                            scale: [1, 1.05, 1],
+                            rotate: [-5, 5, -5],
+                        }}
+                        transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+                    >
+                        <Image src="/assets/quality.png" alt="Quality Badge" fill style={{ objectFit: 'contain', opacity: 0.8 }} />
+                    </motion.div>
+
+                    {/* 3. Cube (Middle Left) */}
                     <motion.div
                         className="floating-asset asset-cube"
-                        style={{ top: '40%', left: '5%', width: '100px', height: '100px' }}
+                        style={{ top: '45%', left: '4%', width: '180px', height: '180px', zIndex: 1 }}
                         animate={{
                             y: [0, 40, 0],
                             rotate: [10, -10, 10],
                         }}
-                        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+                        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
                     >
                         <Image src="/assets/cube.png" alt="Glowing Cube" fill style={{ objectFit: 'contain', opacity: 0.5 }} />
                     </motion.div>
 
-                    {/* Existing Gear (repositioned) */}
+                    {/* 4. UI Card (Middle Right) */}
+                    <motion.div
+                        className="floating-asset asset-card"
+                        style={{ top: '42%', right: '12%', width: '220px', height: '220px', zIndex: 1 }}
+                        animate={{
+                            y: [0, -30, 0],
+                            rotateY: [0, 10, 0],
+                        }}
+                        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+                    >
+                        <Image src="/assets/card.png" alt="UI Card" fill style={{ objectFit: 'contain', opacity: 0.6 }} />
+                    </motion.div>
+
+                    {/* 5. Gear (Bottom Right) */}
                     <motion.div
                         className="floating-asset asset-gear"
-                        style={{ top: '50%', right: '5%', width: '120px', height: '120px' }}
+                        style={{ top: '70%', right: '5%', width: '200px', height: '200px', zIndex: 2 }}
                         animate={{
                             rotate: 360,
-                            y: [0, -30, 0],
+                            y: [0, -20, 0],
                         }}
                         transition={{
-                            rotate: { duration: 40, repeat: Infinity, ease: 'linear' },
+                            rotate: { duration: 50, repeat: Infinity, ease: 'linear' },
                             y: { duration: 6, repeat: Infinity, ease: 'easeInOut' },
                         }}
                     >
-                        <Image src="/assets/gear.png" alt="Glowing Gear" fill style={{ objectFit: 'contain', opacity: 0.4 }} />
+                        <Image src="/assets/gear.png" alt="Glowing Gear" fill style={{ objectFit: 'contain', opacity: 0.5 }} />
+                    </motion.div>
+
+                    {/* 6. Server (Bottom Center-Left) */}
+                    <motion.div
+                        className="floating-asset asset-server"
+                        style={{ bottom: '8%', left: '20%', width: '240px', height: '240px', zIndex: 1 }}
+                        animate={{
+                            y: [0, -25, 0],
+                            rotate: [-3, 3, -3],
+                        }}
+                        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+                    >
+                        <Image src="/assets/server.png" alt="Floating Server" fill style={{ objectFit: 'contain', opacity: 0.7 }} />
                     </motion.div>
 
                     <motion.div
                         className="code-window-card"
-                        style={{ top: '25%', left: '25%' }}
+                        style={{ top: '28%', left: '30%', opacity: 0.6 }}
                         animate={{
                             y: [0, -25, 0],
                             rotate: [-2, 2, -2],
@@ -202,12 +256,12 @@ export default function Home() {
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ffbd2e' }} />
                             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#27c93f' }} />
                         </div>
-                        <div style={{ fontSize: '12px', color: '#FF6B35', fontFamily: 'monospace', opacity: 0.8 }}>
-                            {'.glow-card {'}
+                        <div style={{ fontSize: '10px', color: '#FF6B35', fontFamily: 'monospace', opacity: 0.8 }}>
+                            {'.ui-card {'}
                             <br />
-                            {'  light: orange;'}
+                            {'  float: true;'}
                             <br />
-                            {'  status: expert;'}
+                            {'  style: cinematic;'}
                             <br />
                             {'}'}
                         </div>
@@ -242,7 +296,7 @@ export default function Home() {
                             <motion.h1 className="hero-title">
                                 بناء موقع أو تطبيق
                                 <br />
-                                <span className="text-gradient">باستخدام البرومبتات</span>
+                                <span className="text-gradient">عن طريق التوجيهات الذكية للذكاء الاصطناعي</span>
                             </motion.h1>
 
                             <motion.p className="hero-description">

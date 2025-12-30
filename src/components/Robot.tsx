@@ -1,7 +1,7 @@
 'use client'
 
-import { motion, useSpring, useTransform } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
+// import { useEffect, useState } from 'react' - Removed unused hooks
 import Image from 'next/image'
 
 interface RobotProps {
@@ -17,35 +17,8 @@ export default function Robot({
     variant = 'image',
     videoSrc
 }: RobotProps) {
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-    const [isHovered, setIsHovered] = useState(false)
+    // Hover and mouse interaction logic removed as per request
 
-    // Smooth springs for mouse movement
-    const springConfig = { stiffness: 100, damping: 20 }
-    const mouseX = useSpring(0, springConfig)
-    const mouseY = useSpring(0, springConfig)
-
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e
-            const x = (clientX - window.innerWidth / 2) / 25
-            const y = (clientY - window.innerHeight / 2) / 25
-            mouseX.set(x)
-            mouseY.set(y)
-        }
-
-        if (typeof window !== 'undefined') {
-            window.addEventListener('mousemove', handleMouseMove)
-        }
-        return () => {
-            if (typeof window !== 'undefined') {
-                window.removeEventListener('mousemove', handleMouseMove)
-            }
-        }
-    }, [mouseX, mouseY])
-
-    const rotateY = useTransform(mouseX, (v) => v * 0.5)
-    const rotateX = useTransform(mouseY, (v) => -v * 0.5)
 
     return (
         <motion.div
@@ -57,14 +30,14 @@ export default function Robot({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                pointerEvents: 'none',
             }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{
                 opacity: 1,
-                scale: isHovered ? 1.05 : 1,
+                scale: 1,
             }}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+
         >
             {/* Dynamic Glow Base */}
             <motion.div
@@ -95,10 +68,7 @@ export default function Robot({
                     height: '100%',
                     position: 'relative',
                     zIndex: 1,
-                    x: mouseX,
-                    y: mouseY,
-                    rotateY,
-                    rotateX,
+
                 }}
                 animate={{
                     y: [0, -15, 0],
@@ -112,36 +82,100 @@ export default function Robot({
                 }}
             >
                 {variant === 'video' && videoSrc ? (
-                    <video
-                        src={videoSrc}
-                        poster="/assets/robot.png"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        preload="metadata"
+                    <div
                         style={{
+                            position: 'relative',
                             width: '100%',
                             height: '100%',
-                            objectFit: 'contain',
+                            overflow: 'hidden',
+                            borderRadius: 'inherit',
                         }}
                     >
-                        <source src={videoSrc} type="video/mp4" />
-                        {/* Fallback to Image if video tag isn't supported */}
-                        <Image
-                            src="/assets/robot.png"
-                            alt="Robot Mascot Fallback"
-                            fill
-                            style={{ objectFit: 'contain' }}
-                            priority
-                        />
-                    </video>
+                        <video
+                            src={videoSrc}
+                            poster="/assets/robot-new.png"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="metadata"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                transform: 'scaleX(-1)',
+                            }}
+                        >
+                            <source src={videoSrc} type="video/mp4" />
+                            {/* Fallback to Image if video tag isn't supported */}
+                            <Image
+                                src="/assets/robot-new.png"
+                                alt="Robot Mascot Fallback"
+                                fill
+                                style={{ objectFit: 'contain', transform: 'scaleX(-1)' }}
+                                priority
+                            />
+                        </video>
+
+                        {/* Particles Overlay with Mask */}
+                        <div
+                            style={{
+                                position: 'absolute',
+                                inset: 0,
+                                pointerEvents: 'none',
+                                zIndex: 2,
+                                maskImage: 'radial-gradient(circle at 50% 50%, transparent 45%, black 80%)',
+                                WebkitMaskImage: 'radial-gradient(circle at 50% 50%, transparent 45%, black 80%)',
+                            }}
+                        >
+                            {[
+                                { top: '10%', left: '15%', delay: 0, dur: 4 },
+                                { top: '20%', left: '85%', delay: 1, dur: 5 },
+                                { top: '85%', left: '10%', delay: 2, dur: 4.5 },
+                                { top: '75%', left: '80%', delay: 0.5, dur: 3.5 },
+                                { top: '40%', left: '5%', delay: 1.5, dur: 4 },
+                                { top: '50%', left: '95%', delay: 2.5, dur: 5 },
+                                { top: '5%', left: '50%', delay: 1.2, dur: 4.2 },
+                                { top: '95%', left: '45%', delay: 0.8, dur: 3.8 },
+                                { top: '25%', left: '25%', delay: 0.3, dur: 4.8 },
+                                { top: '65%', left: '75%', delay: 1.8, dur: 4.3 },
+                                { top: '15%', left: '75%', delay: 1.1, dur: 3.9 },
+                                { top: '80%', left: '25%', delay: 2.2, dur: 4.7 },
+                                { top: '30%', left: '90%', delay: 0.7, dur: 4.1 },
+                            ].map((p, i) => (
+                                <motion.div
+                                    key={i}
+                                    style={{
+                                        position: 'absolute',
+                                        top: p.top,
+                                        left: p.left,
+                                        width: '3px',
+                                        height: '3px',
+                                        borderRadius: '50%',
+                                        background: '#FF6B35',
+                                        boxShadow: '0 0 6px #FF6B35',
+                                        opacity: 0.6,
+                                    }}
+                                    animate={{
+                                        y: [0, -15, 0],
+                                        opacity: [0.4, 0.8, 0.4],
+                                    }}
+                                    transition={{
+                                        duration: p.dur,
+                                        repeat: Infinity,
+                                        ease: 'easeInOut',
+                                        delay: p.delay,
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </div>
                 ) : (
                     <Image
-                        src="/assets/robot.png"
+                        src="/assets/robot-new.png"
                         alt="Robot Mascot"
                         fill
-                        style={{ objectFit: 'contain' }}
+                        style={{ objectFit: 'contain', transform: 'scaleX(-1)' }}
                         priority
                     />
                 )}

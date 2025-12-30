@@ -21,7 +21,7 @@ export default function Navigation() {
         >
             <div className="nav-content">
                 <Link href="/" className="nav-logo">
-                    خبير البرومبتات
+                    خبير التوجيهات الذكية
                 </Link>
 
                 <ul className="nav-links">

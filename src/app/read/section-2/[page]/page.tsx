@@ -73,12 +73,7 @@ export default function Section2Page() {
                         </p>
                     </motion.div>
 
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr)',
-                        gap: '40px',
-                        alignItems: 'start'
-                    }}>
+                    <div className="read-layout-grid">
                         {/* Dense Content Column */}
                         <motion.div
                             initial={{ opacity: 0, x: -30 }}
@@ -257,23 +252,13 @@ export default function Section2Page() {
                             ))}
                         </div>
 
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            maxWidth: '600px'
-                        }}>
+                        <div className="nav-buttons-container">
                             <button
                                 onClick={handlePrev}
-                                className={`btn btn-secondary ${isFirstPage ? 'disabled' : ''}`}
+                                className={`btn btn-secondary nav-action-btn ${isFirstPage ? 'disabled' : ''}`}
                                 disabled={isFirstPage}
                                 style={{
-                                    opacity: isFirstPage ? 0.3 : 1,
-                                    padding: '12px 30px',
-                                    minWidth: '160px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px'
+                                    opacity: isFirstPage ? 0.3 : 1
                                 }}
                             >
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ transform: 'rotate(180deg)' }}>
@@ -284,15 +269,7 @@ export default function Section2Page() {
 
                             <button
                                 onClick={handleNext}
-                                className="btn btn-primary"
-                                style={{
-                                    padding: '12px 40px',
-                                    minWidth: '200px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    boxShadow: '0 10px 20px rgba(255, 107, 53, 0.2)'
-                                }}
+                                className="btn btn-primary nav-action-btn nav-action-btn-next"
                             >
                                 <span style={{ fontWeight: 700 }}>{isLastPage ? 'نهاية القسم' : 'التالي'}</span>
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

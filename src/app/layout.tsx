@@ -1,4 +1,5 @@
 import BackgroundParticles from '@/components/BackgroundParticles'
+
 import './globals.css'
 
 export const metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="ar" dir="rtl">
       <body>
         <BackgroundParticles />
+
         {children}
       </body>
     </html>

@@ -170,23 +170,13 @@ export default function GlossaryPage() {
                             ))}
                         </div>
 
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            width: '100%',
-                            maxWidth: '650px'
-                        }}>
+                        <div className="nav-buttons-container">
                             <button
                                 onClick={handlePrev}
-                                className={`btn btn-secondary ${isFirstPage ? 'disabled' : ''}`}
+                                className={`btn btn-secondary nav-action-btn ${isFirstPage ? 'disabled' : ''}`}
                                 disabled={isFirstPage}
                                 style={{
-                                    opacity: isFirstPage ? 0.3 : 1,
-                                    padding: '14px 34px',
-                                    minWidth: '170px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px'
+                                    opacity: isFirstPage ? 0.3 : 1
                                 }}
                             >
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ transform: 'rotate(180deg)' }}>
@@ -197,15 +187,7 @@ export default function GlossaryPage() {
 
                             <button
                                 onClick={handleNext}
-                                className="btn btn-primary"
-                                style={{
-                                    padding: '14px 44px',
-                                    minWidth: '210px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '12px',
-                                    boxShadow: '0 10px 25px rgba(255, 107, 53, 0.25)'
-                                }}
+                                className="btn btn-primary nav-action-btn nav-action-btn-next"
                             >
                                 <span style={{ fontWeight: 800 }}>{isLastPage ? 'العودة للفهرس' : 'التالي'}</span>
                                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

@@ -58,9 +58,9 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-  direction: rtl;
+html,
+body {
+  overflow-x: hidden;
 }
 
 body {
@@ -68,8 +68,9 @@ body {
   background: var(--color-bg-darker);
   color: var(--color-text-primary);
   line-height: 1.6;
-  overflow-x: hidden;
   position: relative;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* Background Effects */
@@ -720,4 +721,94 @@ a:hover {
 
 .robot-container {
   perspective: 1000px;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto !important;
+}
+
+/* New Responsive Grids */
+.read-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.toc-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 60px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+
+  .read-layout-grid,
+  .toc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .read-layout-grid>*:nth-child(2),
+  .toc-grid>*:nth-child(2) {
+    order: -1;
+    /* Or keep natural order, usually robot is secondary. 
+       User said: "Sidebar ... becomes above or below". 
+       If I put it -1, it's above. Let's try natural order (below) first as it's cleaner for reading. 
+       Actually, `lesson-sidebar` logic in existing CSS lines 704-707 puts it at -1. 
+       Wait, let's look at `toc/page.tsx`. Robot is 2nd div. If I want it to be "Side Robot" or "Bottom Robot", 
+       putting it above might be distracting on mobile TOC. 
+       For Read pages, "Tip of the section" and Robot. Maybe above is okay. 
+       Let's stick to NO order change (content first) unless user complained. 
+       User said: "Sidebar ... becomes above content or below it". 
+       "Toc / Robot side ... becomes below or disappears". 
+       So for TOC, Robot (2nd child) should be BELOW. 
+       Global Line 707 says `order: -1`. That was for `lesson-sidebar`. 
+       I will set order to 1 (below) explicitly for mobile if needed, but default is below in 1-col grid. 
+       So I will NOT set order: -1. 
+    */
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+    /* User requested 16px-20px */
+  }
+}
+
+/* Navigation Actions Responsive */
+.nav-buttons-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 650px;
+  gap: 20px;
+}
+
+.nav-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 34px;
+  min-width: 170px;
+}
+
+.nav-action-btn-next {
+  padding: 14px 44px;
+  min-width: 210px;
+  box-shadow: 0 10px 25px rgba(255, 107, 53, 0.25);
+}
+
+@media (max-width: 600px) {
+  .nav-buttons-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .nav-action-btn,
+  .nav-action-btn-next {
+    width: 100%;
+    min-width: 0;
+  }
 }

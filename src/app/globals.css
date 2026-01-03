@@ -437,6 +437,7 @@ a:hover {
 
   .nav-content {
     flex-direction: column;
+    align-items: center;
     gap: var(--spacing-sm);
   }
 
@@ -523,7 +524,9 @@ a:hover {
 .hero-section {
   min-height: calc(100vh - var(--header-h, 80px));
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  /* Only hide horizontal overflow for floating assets */
+  overflow-y: visible;
   background: transparent;
   /* Let body and particles show through */
   display: flex;
@@ -553,11 +556,13 @@ a:hover {
 }
 
 .hero-title {
-  font-size: clamp(36px, 4.6vw, 88px);
-  line-height: clamp(1.02, 1.06, 1.14);
+  font-size: clamp(32px, 5vw, 88px);
+  line-height: 1.1;
   font-weight: 900;
   letter-spacing: -1px;
   margin-bottom: var(--spacing-md);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .hero-description {
@@ -657,7 +662,8 @@ a:hover {
   .hero-grid {
     grid-template-columns: 1fr;
     text-align: center;
-    gap: var(--spacing-2xl);
+    gap: var(--spacing-xl);
+    width: 100%;
   }
 
   .hero-text-container {
@@ -665,15 +671,21 @@ a:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
+    padding: 0 10px;
   }
 
   .hero-image-container {
     order: 1;
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 0;
+    width: 100%;
+    max-width: 320px;
+    margin-inline: auto;
   }
 
   .hero-actions {
     justify-content: center;
+    width: 100%;
   }
 
   .floating-asset {
@@ -691,7 +703,13 @@ a:hover {
   }
 
   .hero-title {
-    font-size: 2.5rem;
+    font-size: clamp(24px, 8vw, 36px);
+    line-height: 1.2;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-lg);
   }
 
   .floating-assets {

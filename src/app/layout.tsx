@@ -17,7 +17,10 @@ export default function RootLayout({
       <body>
         <BackgroundParticles />
 
-        {children}
+
+        <div style={{ paddingTop: 'var(--header-h, 0px)' }}>
+          {children}
+        </div>
       </body>
     </html>
   )

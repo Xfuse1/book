@@ -20,11 +20,6 @@ import {
 
 const chapters = [
     {
-        number: 'معجم المصطلحات',
-        title: 'المصطلحات المهمة',
-        description: 'شرح للمصطلحات الأكثر تكراراً لضمان فهم فصول الكتاب',
-    },
-    {
         number: 'المقدمة',
         title: 'التمهيد',
         description: 'مرحباً بك في رحلة بناء المشاريع بالبرومبت',
@@ -32,7 +27,7 @@ const chapters = [
     {
         number: '01',
         title: 'أساسيات “برومبت مشروع”',
-        description: '6 صفحات غنية بالمحتوى المكثف',
+        description: 'تحويل التفكير من الدردشة إلى إدارة مشروع',
     },
     {
         number: '02',
@@ -76,7 +71,7 @@ export default function TOCPage() {
         <>
             <Navigation />
 
-            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '100px' }}>
+            <main style={{ minHeight: 'calc(100vh - var(--header-h, 80px))', position: 'relative', overflow: 'hidden', paddingTop: '20px' }}>
                 {/* Floating Assets */}
                 <div className="floating-assets" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 5 }}>
                     {/* Element 1: Magic Wand (Top Left) */}
@@ -348,17 +343,16 @@ export default function TOCPage() {
                                 >
                                     <Link
                                         href={
-                                            index === 0 ? `/read/glossary/1` :
-                                                index === 1 ? `/read/intro/1` :
-                                                    index === 2 ? `/read/section-1/1` :
-                                                        index === 3 ? `/read/section-2/1` :
-                                                            index === 4 ? `/read/section-3/1` :
-                                                                index === 5 ? `/read/section-4/1` :
-                                                                    index === 6 ? `/read/section-5/1` :
-                                                                        index === 7 ? `/read/section-6/1` :
-                                                                            index === 8 ? `/library/1` :
-                                                                                index === 9 ? `/read/appendix/1` :
-                                                                                    `/read/lesson-${index - 1}`
+                                            index === 0 ? `/read/intro/1` :
+                                                index === 1 ? `/read/section-1/1` :
+                                                    index === 2 ? `/read/section-2/1` :
+                                                        index === 3 ? `/read/section-3/1` :
+                                                            index === 4 ? `/read/section-4/1` :
+                                                                index === 5 ? `/read/section-5/1` :
+                                                                    index === 6 ? `/read/section-6/1` :
+                                                                        index === 7 ? `/library/1` :
+                                                                            index === 8 ? `/read/appendix/1` :
+                                                                                `/read/lesson-${index}`
                                         }
                                         style={{ textDecoration: 'none', display: 'block' }}
                                     >
@@ -372,29 +366,21 @@ export default function TOCPage() {
                                             }}
                                             whileHover={{ scale: 1.02 }}
                                         >
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                                                <div style={{
-                                                    fontSize: '3rem',
-                                                    fontWeight: '900',
-                                                    background: 'linear-gradient(135deg, #FF6B35, #FF8C42)',
-                                                    WebkitBackgroundClip: 'text',
-                                                    WebkitTextFillColor: 'transparent',
-                                                    backgroundClip: 'text',
-                                                    minWidth: '80px',
-                                                }}>
+                                            <div className="toc-card-content">
+                                                <div className="toc-card-number">
                                                     {chapter.number}
                                                 </div>
-                                                <div style={{ flex: 1 }}>
-                                                    <h3 style={{ fontSize: '1.5rem', marginBottom: '4px', color: '#fff' }}>
+                                                <div className="toc-card-info">
+                                                    <h3 className="toc-card-title">
                                                         {chapter.title}
                                                     </h3>
                                                     {chapter.description && (
-                                                        <p style={{ fontSize: '0.9rem', color: '#b0b0b0', margin: 0 }}>
+                                                        <p className="toc-card-desc">
                                                             {chapter.description}
                                                         </p>
                                                     )}
                                                 </div>
-                                                <motion.div whileHover={{ x: -10 }}>
+                                                <motion.div className="toc-card-icon" whileHover={{ x: -10 }}>
                                                     <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
                                                         <path d="M18 8l-8 7 8 7" stroke="#FF6B35" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                                     </svg>

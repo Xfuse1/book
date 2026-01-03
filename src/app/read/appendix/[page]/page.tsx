@@ -49,7 +49,7 @@ export default function AppendixPage() {
         <>
             <Navigation />
 
-            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '80px' }}>
+            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '0' }}>
 
                 <div className="container" style={{ paddingBottom: '40px', maxWidth: '1400px' }}>
                     <motion.div

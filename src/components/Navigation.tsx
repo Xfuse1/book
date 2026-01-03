@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 
@@ -12,8 +13,32 @@ export default function Navigation() {
         { href: '/toc', label: 'الفهرس' },
     ]
 
+    const headerRef = useRef<HTMLElement>(null)
+
+    useEffect(() => {
+        if (!headerRef.current) return
+
+        const updateHeaderHeight = () => {
+            const height = headerRef.current?.offsetHeight || 0
+            document.documentElement.style.setProperty('--header-h', `${height}px`)
+        }
+
+        const resizeObserver = new ResizeObserver(updateHeaderHeight)
+        resizeObserver.observe(headerRef.current)
+
+        // Initial set and window resize fallback
+        updateHeaderHeight()
+        window.addEventListener('resize', updateHeaderHeight)
+
+        return () => {
+            resizeObserver.disconnect()
+            window.removeEventListener('resize', updateHeaderHeight)
+        }
+    }, [])
+
     return (
         <motion.nav
+            ref={headerRef}
             className="nav"
             initial={{ y: -100 }}
             animate={{ y: 0 }}

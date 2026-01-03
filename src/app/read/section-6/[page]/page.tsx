@@ -49,7 +49,7 @@ export default function Section6Page() {
         <>
             <Navigation />
 
-            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '80px' }}>
+            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '0' }}>
 
                 <div className="container" style={{ paddingBottom: '40px', maxWidth: '1400px' }}>
                     <motion.div
@@ -133,9 +133,47 @@ export default function Section6Page() {
                                                     {block.title}
                                                 </h3>
                                             </div>
-                                            <p style={{ fontSize: '1.05rem', color: '#fff', margin: 0, lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-                                                {block.content}
-                                            </p>
+                                            {block.content && (
+                                                <p style={{ fontSize: '1.05rem', color: '#fff', margin: 0, lineHeight: '1.6', whiteSpace: 'pre-line', marginBottom: block.items ? '16px' : '0' }}>
+                                                    {block.content}
+                                                </p>
+                                            )}
+
+                                            {block.items && (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                    {block.items.map((item: any, idx: number) => (
+                                                        <details
+                                                            key={idx}
+                                                            style={{
+                                                                background: 'rgba(255, 255, 255, 0.03)',
+                                                                borderRadius: '8px',
+                                                                overflow: 'hidden',
+                                                                border: '1px solid rgba(255, 255, 255, 0.05)'
+                                                            }}
+                                                        >
+                                                            <summary style={{
+                                                                padding: '12px 16px',
+                                                                cursor: 'pointer',
+                                                                fontWeight: 'bold',
+                                                                color: '#e0e0e0',
+                                                                fontSize: '0.95rem',
+                                                                userSelect: 'none',
+                                                                outline: 'none'
+                                                            }}>
+                                                                {item.title}
+                                                            </summary>
+                                                            <div style={{
+                                                                padding: '0 16px 16px 16px',
+                                                                fontSize: '0.9rem',
+                                                                color: '#b0b0b0',
+                                                                lineHeight: '1.5'
+                                                            }}>
+                                                                {item.content}
+                                                            </div>
+                                                        </details>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </motion.div>
                                     )}
                                     {block.type === 'code' && (

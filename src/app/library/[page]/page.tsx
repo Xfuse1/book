@@ -87,7 +87,7 @@ export default function LibraryPage() {
         <>
             <Navigation />
 
-            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '100px' }}>
+            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '20px' }}>
 
                 <div className="container" style={{ paddingBottom: '40px' }}>
                     <motion.div

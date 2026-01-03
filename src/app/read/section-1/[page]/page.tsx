@@ -214,10 +214,11 @@ export default function Section1Page() {
 
                                 {/* Prompt Box Overlay */}
                                 <motion.div
+                                    className="floating-code-card"
                                     style={{
                                         position: 'absolute',
                                         bottom: '-20px',
-                                        right: '-40px',
+                                        left: '-40px',
                                         width: '300px',
                                         background: 'rgba(10, 10, 10, 0.95)',
                                         border: '1px solid #FF6B35',

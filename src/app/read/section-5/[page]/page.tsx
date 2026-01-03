@@ -221,6 +221,7 @@ export default function Section5Page() {
 
                                 {/* Prompt Box Overlay */}
                                 <motion.div
+                                    className="floating-code-card"
                                     style={{
                                         position: 'absolute',
                                         bottom: '-20px',

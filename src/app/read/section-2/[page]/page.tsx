@@ -94,7 +94,8 @@ export default function Section2Page() {
                                                 fontSize: '1.15rem',
                                                 lineHeight: '1.7',
                                                 color: index === 0 ? '#fff' : '#b0b0b0',
-                                                fontWeight: index === 0 ? 600 : 400
+                                                fontWeight: index === 0 ? 600 : 400,
+                                                whiteSpace: 'pre-line'
                                             }}>
                                                 {block.content}
                                             </p>
@@ -133,7 +134,13 @@ export default function Section2Page() {
                                                     {block.title}
                                                 </h3>
                                             </div>
-                                            <p style={{ fontSize: '1.05rem', color: '#d0d0d0', margin: '0 48px 0 0', marginBottom: block.items ? '24px' : '0' }}>
+                                            <p style={{
+                                                fontSize: '1.05rem',
+                                                color: '#d0d0d0',
+                                                margin: '0 48px 0 0',
+                                                marginBottom: block.items ? '24px' : '0',
+                                                whiteSpace: 'pre-line'
+                                            }}>
                                                 {block.content}
                                             </p>
 
@@ -205,10 +212,11 @@ export default function Section2Page() {
 
                                 {/* Floating Code Card like in screenshot */}
                                 <motion.div
+                                    className="floating-code-card"
                                     style={{
                                         position: 'absolute',
                                         top: '60%',
-                                        right: '-40px',
+                                        left: '-40px',
                                         width: '280px',
                                         background: 'rgba(15, 15, 15, 0.9)',
                                         border: '1px solid rgba(255, 107, 53, 0.3)',

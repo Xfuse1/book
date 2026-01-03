@@ -24,10 +24,8 @@ export default function Robot({
         <motion.div
             className={`robot-container ${className}`}
             style={{
-                width: '100%',
-                maxWidth: size,
-                aspectRatio: '1 / 1',
-                height: 'auto',
+                width: size,
+                height: size,
                 position: 'relative',
                 display: 'flex',
                 alignItems: 'center',

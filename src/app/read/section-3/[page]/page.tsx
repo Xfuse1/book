@@ -209,6 +209,7 @@ export default function Section3Page() {
 
                                 {/* Prompt Box Overlay (Floating like reference) */}
                                 <motion.div
+                                    className="floating-code-card"
                                     style={{
                                         position: 'absolute',
                                         bottom: '-20px',

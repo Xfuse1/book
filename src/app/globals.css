@@ -945,3 +945,172 @@ a:hover {
     transform: none !important;
   }
 }
+
+/* --- Reading Experience Updates --- */
+
+.lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+.lock-card {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(15, 15, 15, 0.9);
+  border: 1px solid rgba(255, 107, 53, 0.4);
+  border-radius: 28px;
+  padding: 48px 32px;
+  text-align: center;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(255, 107, 53, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.lock-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-orange-primary), transparent);
+}
+
+.lock-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 107, 53, 0.1);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  color: var(--color-orange-primary);
+}
+
+.lock-title {
+  font-size: 1.75rem;
+  font-weight: 900;
+  margin-bottom: 16px;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.lock-description {
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin-bottom: 36px;
+  font-size: 1.05rem;
+}
+
+.lock-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lock-btn-primary {
+  background: linear-gradient(135deg, var(--color-orange-primary), var(--color-orange-glow));
+  color: #fff !important;
+  padding: 16px 32px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(255, 107, 53, 0.2);
+}
+
+.lock-btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(255, 107, 53, 0.4);
+}
+
+.lock-btn-secondary {
+  background: rgba(255, 255, 255, 0.03);
+  color: #fff !important;
+  padding: 14px 32px;
+  border-radius: 14px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.lock-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Pagination Styling Fixes */
+.reading-nav-container {
+  margin-top: 80px;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.nav-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.reading-nav-btn {
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: all 0.3s;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+.reading-nav-btn.next {
+  background: var(--color-orange-primary);
+  color: #fff !important;
+}
+
+.reading-nav-btn.prev {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pagination-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.reading-dot {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 107, 53, 0.2);
+}
+
+.reading-dot-active {
+  width: 30px;
+  background: var(--color-orange-primary);
+}
+
+.reading-dot-inactive {
+  width: 8px;
+}

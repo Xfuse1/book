@@ -7,29 +7,45 @@ import Navigation from '@/components/Navigation'
 import Robot from '@/components/Robot'
 import { section2 } from '@/data/bookData'
 import { useEffect, useState } from 'react'
+import { verifySession } from '@/lib/auth'
+import LockedOverlay from '@/components/reading/LockedOverlay'
+import ReadingPagination from '@/components/reading/ReadingPagination'
 
 export default function Section2Page() {
     const params = useParams()
     const router = useRouter()
     const pageNum = parseInt(params.page as string) || 1
-    const [currentPage, setCurrentPage] = useState(section2[pageNum - 1])
 
-    useEffect(() => {
-        const page = section2[pageNum - 1]
-        if (page) {
-            setCurrentPage(page)
-        } else {
-            router.push('/toc')
-        }
-    }, [pageNum, router])
+    const [isAuthed, setIsAuthed] = useState(false)
+    const [isLockOverlayOpen, setIsLockOverlayOpen] = useState(false)
 
-    if (!currentPage) return null
-
+    const currentPage = section2[pageNum - 1]
     const totalPages = section2.length
     const isFirstPage = pageNum === 1
     const isLastPage = pageNum === totalPages
 
+    // Everything in Section 2 is locked for non-authed users
+    const isCurrentPageLocked = !isAuthed
+
+    useEffect(() => {
+        const authed = verifySession()
+        setIsAuthed(authed)
+
+        if (!authed) {
+            setIsLockOverlayOpen(true)
+        }
+    }, [pageNum])
+
+    if (!currentPage) {
+        if (typeof window !== 'undefined') router.push('/toc')
+        return null
+    }
+
     const handleNext = () => {
+        if (!isAuthed) {
+            setIsLockOverlayOpen(true)
+            return
+        }
         if (!isLastPage) {
             router.push(`/read/section-2/${pageNum + 1}`)
         } else {
@@ -47,11 +63,20 @@ export default function Section2Page() {
         <>
             <Navigation />
 
-            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '0' }}>
-                {/* Background Particles */}
+            {/* Locked Overlay */}
+            <LockedOverlay
+                isOpen={isLockOverlayOpen}
+                onClose={() => {
+                    if (!isAuthed) router.push('/read/section-1/2')
+                    else setIsLockOverlayOpen(false)
+                }}
+                nextPath={`/read/section-2/${pageNum}`}
+                isDirectAccess={!isAuthed}
+            />
 
+            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '0' }}>
                 <div className="container" style={{ paddingBottom: '40px', maxWidth: '1400px' }}>
-                    {/* Header - Centered as in screenshot */}
+                    {/* Header */}
                     <motion.div
                         style={{ textAlign: 'center', marginBottom: '48px' }}
                         initial={{ opacity: 0, y: -20 }}
@@ -80,7 +105,14 @@ export default function Section2Page() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                             key={pageNum}
-                            style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '20px',
+                                filter: isCurrentPageLocked ? 'blur(8px)' : 'none',
+                                pointerEvents: isCurrentPageLocked ? 'none' : 'auto',
+                                opacity: isCurrentPageLocked ? 0.3 : 1
+                            }}
                         >
                             {currentPage.contentBlocks.map((block, index) => (
                                 <div key={index}>
@@ -193,7 +225,7 @@ export default function Section2Page() {
                             ))}
                         </motion.div>
 
-                        {/* Interactive Sidebar with Robot and Code Card */}
+                        {/* Interactive Sidebar */}
                         <div style={{
                             position: 'sticky',
                             top: '120px',
@@ -210,7 +242,6 @@ export default function Section2Page() {
                             >
                                 <Robot size={350} />
 
-                                {/* Floating Code Card like in screenshot */}
                                 <motion.div
                                     className="floating-code-card"
                                     style={{
@@ -267,73 +298,25 @@ export default function Section2Page() {
                         </div>
                     </div>
 
-                    {/* Navigation Buttons */}
-                    <div style={{
-                        marginTop: '60px',
-                        paddingTop: '40px',
-                        borderTop: '1px solid rgba(255, 107, 53, 0.1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '30px'
-                    }}>
-                        {/* Progress Dots */}
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            {section2.map((p) => (
-                                <motion.div
-                                    key={p.id}
-                                    style={{
-                                        width: p.id === pageNum ? '30px' : '8px',
-                                        height: '8px',
-                                        borderRadius: '4px',
-                                        background: p.id === pageNum
-                                            ? 'linear-gradient(90deg, #FF6B35, #FF8C42)'
-                                            : 'rgba(255, 107, 53, 0.2)',
-                                        boxShadow: p.id === pageNum ? '0 0 10px rgba(255, 107, 53, 0.5)' : 'none'
-                                    }}
-                                    layoutId="dot"
-                                />
-                            ))}
-                        </div>
+                    {/* Navigation Buttons & Progress Dots */}
+                    <ReadingPagination
+                        currentIndex={pageNum - 1}
+                        total={totalPages}
+                        onPrev={handlePrev}
+                        onNext={handleNext}
+                        isFirst={isFirstPage}
+                        isLast={isLastPage}
+                        isNextLocked={!isAuthed}
+                        onLockedClick={() => setIsLockOverlayOpen(true)}
+                    />
 
-                        <div className="nav-buttons-container">
-                            <button
-                                onClick={handlePrev}
-                                className={`btn btn-secondary nav-action-btn ${isFirstPage ? 'disabled' : ''}`}
-                                disabled={isFirstPage}
-                                style={{
-                                    opacity: isFirstPage ? 0.3 : 1
-                                }}
-                            >
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ transform: 'rotate(180deg)' }}>
-                                    <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <span>السابق</span>
-                            </button>
-
-                            <button
-                                onClick={handleNext}
-                                className="btn btn-primary nav-action-btn nav-action-btn-next"
-                            >
-                                <span style={{ fontWeight: 700 }}>{isLastPage ? 'نهاية القسم' : 'التالي'}</span>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <Link href="/toc" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.3s' }} className="hover-orange">
+                    <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                        <Link href="/toc" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>
                             العودة إلى الفهرس
                         </Link>
                     </div>
                 </div>
             </main>
-
-            <style jsx>{`
-                .hover-orange:hover {
-                    color: #FF6B35 !important;
-                }
-            `}</style>
         </>
     )
 }

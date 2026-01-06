@@ -7,33 +7,57 @@ import Navigation from '@/components/Navigation'
 import Robot from '@/components/Robot'
 import { section1 } from '@/data/bookData'
 import { useEffect, useState } from 'react'
+import { verifySession } from '@/lib/auth'
+import LockedOverlay from '@/components/reading/LockedOverlay'
+import ReadingPagination from '@/components/reading/ReadingPagination'
 
 export default function Section1Page() {
     const params = useParams()
     const router = useRouter()
     const pageNum = parseInt(params.page as string) || 1
-    const [currentPage, setCurrentPage] = useState(section1[pageNum - 1])
 
-    useEffect(() => {
-        const page = section1[pageNum - 1]
-        if (page) {
-            setCurrentPage(page)
-        } else {
-            router.push('/toc')
-        }
-    }, [pageNum, router])
+    const [isAuthed, setIsAuthed] = useState(false)
+    const [isLockOverlayOpen, setIsLockOverlayOpen] = useState(false)
+    const [isDirectAccess, setIsDirectAccess] = useState(false)
 
-    if (!currentPage) return null
-
+    const currentPage = section1[pageNum - 1]
     const totalPages = section1.length
     const isFirstPage = pageNum === 1
     const isLastPage = pageNum === totalPages
 
+    // Logic for locking
+    // Page 1, 2 are free. Page 3+ are locked.
+    const FREE_PAGES_LIMIT = 2
+    const isCurrentPageLocked = pageNum > FREE_PAGES_LIMIT
+    const isNextPageLocked = pageNum === FREE_PAGES_LIMIT && !isAuthed
+
+    useEffect(() => {
+        const authed = verifySession()
+        setIsAuthed(authed)
+
+        // If trying to access a locked page directly without auth
+        if (isCurrentPageLocked && !authed) {
+            setIsLockOverlayOpen(true)
+            setIsDirectAccess(true)
+        }
+    }, [pageNum, isCurrentPageLocked])
+
+    if (!currentPage) {
+        if (typeof window !== 'undefined') router.push('/toc')
+        return null
+    }
+
     const handleNext = () => {
+        if (isNextPageLocked) {
+            setIsLockOverlayOpen(true)
+            setIsDirectAccess(false)
+            return
+        }
+
         if (!isLastPage) {
             router.push(`/read/section-1/${pageNum + 1}`)
         } else {
-            router.push('/toc') // Option B: Navigate back to Index
+            router.push('/toc')
         }
     }
 
@@ -47,9 +71,15 @@ export default function Section1Page() {
         <>
             <Navigation />
 
-            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '0' }}>
-                {/* Background Particles */}
+            {/* Locked Overlay */}
+            <LockedOverlay
+                isOpen={isLockOverlayOpen}
+                onClose={() => setIsLockOverlayOpen(false)}
+                nextPath={`/read/section-1/${isDirectAccess ? pageNum : pageNum + 1}`}
+                isDirectAccess={isDirectAccess}
+            />
 
+            <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '0' }}>
                 <div className="container" style={{ paddingBottom: '40px', maxWidth: '1400px' }}>
                     {/* Header */}
                     <motion.div
@@ -74,13 +104,20 @@ export default function Section1Page() {
                     </motion.div>
 
                     <div className="read-layout-grid">
-                        {/* Right Column (Main Content in RTL: Right is the 1.3fr) */}
+                        {/* Right Column Content */}
                         <motion.div
                             initial={{ opacity: 0, x: 30 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8, delay: 0.2 }}
                             key={pageNum}
-                            style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '24px',
+                                filter: isCurrentPageLocked && !isAuthed ? 'blur(8px)' : 'none',
+                                pointerEvents: isCurrentPageLocked && !isAuthed ? 'none' : 'auto',
+                                opacity: isCurrentPageLocked && !isAuthed ? 0.3 : 1
+                            }}
                         >
                             {currentPage.contentBlocks.map((block, index) => (
                                 <div key={index}>
@@ -200,7 +237,7 @@ export default function Section1Page() {
                             ))}
                         </motion.div>
 
-                        {/* Left Column: Robot + Floating Prompt Card */}
+                        {/* Left Column Sidebar */}
                         <div style={{
                             position: 'sticky',
                             top: '120px',
@@ -212,7 +249,6 @@ export default function Section1Page() {
                             <div style={{ position: 'relative' }}>
                                 <Robot size={320} />
 
-                                {/* Prompt Box Overlay */}
                                 <motion.div
                                     className="floating-code-card"
                                     style={{
@@ -268,61 +304,20 @@ export default function Section1Page() {
                         </div>
                     </div>
 
-                    {/* Navigation Buttons */}
-                    <div style={{
-                        marginTop: '60px',
-                        paddingTop: '40px',
-                        borderTop: '1px solid rgba(255, 107, 53, 0.1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '30px'
-                    }}>
-                        {/* Progress Dots */}
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            {section1.map((p) => (
-                                <motion.div
-                                    key={p.id}
-                                    style={{
-                                        width: p.id === pageNum ? '32px' : '8px',
-                                        height: '8px',
-                                        borderRadius: '4px',
-                                        background: p.id === pageNum
-                                            ? 'linear-gradient(90deg, #FF6B35, #FF8C42)'
-                                            : 'rgba(255, 107, 53, 0.2)',
-                                        boxShadow: p.id === pageNum ? '0 0 12px rgba(255, 107, 53, 0.4)' : 'none'
-                                    }}
-                                    layout
-                                />
-                            ))}
-                        </div>
-
-                        <div className="nav-buttons-container">
-                            <button
-                                onClick={handlePrev}
-                                className={`btn btn-secondary nav-action-btn ${isFirstPage ? 'disabled' : ''}`}
-                                disabled={isFirstPage}
-                                style={{
-                                    opacity: isFirstPage ? 0.3 : 1
-                                }}
-                            >
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ transform: 'rotate(180deg)' }}>
-                                    <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <span>السابق</span>
-                            </button>
-
-                            <button
-                                onClick={handleNext}
-                                className="btn btn-primary nav-action-btn nav-action-btn-next"
-                            >
-                                <span style={{ fontWeight: 800 }}>{isLastPage ? 'العودة للفهرس' : 'التالي'}</span>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    {/* Navigation Buttons & Progress Dots */}
+                    <ReadingPagination
+                        currentIndex={pageNum - 1}
+                        total={totalPages}
+                        onPrev={handlePrev}
+                        onNext={handleNext}
+                        isFirst={isFirstPage}
+                        isLast={isLastPage}
+                        isNextLocked={isNextPageLocked}
+                        onLockedClick={() => {
+                            setIsLockOverlayOpen(true)
+                            setIsDirectAccess(false)
+                        }}
+                    />
 
                     <div style={{ textAlign: 'center', marginTop: '40px' }}>
                         <Link href="/toc" style={{ color: '#b0b0b0', textDecoration: 'none', fontSize: '0.9rem' }}>

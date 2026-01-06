@@ -4,34 +4,46 @@ import { motion } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
-import Robot from '@/components/Robot'
-import { glossaryData, PageContent } from '@/data/bookData'
+import { glossaryData } from '@/data/bookData'
 import { useEffect, useState } from 'react'
+import { verifySession } from '@/lib/auth'
+import LockedOverlay from '@/components/reading/LockedOverlay'
+import ReadingPagination from '@/components/reading/ReadingPagination'
 
 export default function GlossaryPage() {
     const params = useParams()
     const router = useRouter()
     const pageNum = parseInt(params.page as string) || 1
-    const [currentPage, setCurrentPage] = useState<PageContent | undefined>(glossaryData[pageNum - 1])
 
-    useEffect(() => {
-        const page = glossaryData[pageNum - 1]
-        if (page) {
-            setCurrentPage(page)
-        } else {
-            if (params.page) {
-                router.push('/toc')
-            }
-        }
-    }, [pageNum, router, params.page])
+    const [isAuthed, setIsAuthed] = useState(false)
+    const [isLockOverlayOpen, setIsLockOverlayOpen] = useState(false)
 
-    if (!currentPage) return null
-
+    const currentPage = glossaryData[pageNum - 1]
     const totalPages = glossaryData.length
     const isFirstPage = pageNum === 1
     const isLastPage = pageNum === totalPages
 
+    const isCurrentPageLocked = !isAuthed
+
+    useEffect(() => {
+        const authed = verifySession()
+        setIsAuthed(authed)
+
+        if (!authed) {
+            setIsLockOverlayOpen(true)
+        }
+    }, [pageNum])
+
+    if (!currentPage) {
+        if (typeof window !== 'undefined' && params.page) router.push('/toc')
+        return null
+    }
+
     const handleNext = () => {
+        if (!isAuthed) {
+            setIsLockOverlayOpen(true)
+            return
+        }
         if (!isLastPage) {
             router.push(`/read/glossary/${pageNum + 1}`)
         } else {
@@ -48,6 +60,17 @@ export default function GlossaryPage() {
     return (
         <>
             <Navigation />
+
+            {/* Locked Overlay */}
+            <LockedOverlay
+                isOpen={isLockOverlayOpen}
+                onClose={() => {
+                    if (!isAuthed) router.push('/read/section-1/2')
+                    else setIsLockOverlayOpen(false)
+                }}
+                nextPath={`/read/glossary/${pageNum}`}
+                isDirectAccess={!isAuthed}
+            />
 
             <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '0' }}>
 
@@ -68,12 +91,19 @@ export default function GlossaryPage() {
                         }}>
                             {currentPage.title}
                         </h1>
-                        <p style={{ fontSize: '1.15rem', color: '#b0b0b0', maxWidth: '800px', margin: '0 auto' }}>
+                        <p style={{ fontSize: '1.25rem', color: '#b0b0b0', maxWidth: '800px', margin: '0 auto' }}>
                             {currentPage.description}
                         </p>
                     </motion.div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr',
+                        gap: '24px',
+                        filter: isCurrentPageLocked ? 'blur(8px)' : 'none',
+                        pointerEvents: isCurrentPageLocked ? 'none' : 'auto',
+                        opacity: isCurrentPageLocked ? 0.3 : 1
+                    }}>
                         {currentPage.contentBlocks.map((block, index) => {
                             if (block.type !== 'card') return null;
 
@@ -141,61 +171,16 @@ export default function GlossaryPage() {
                         })}
                     </div>
 
-                    {/* Navigation */}
-                    <div style={{
-                        marginTop: '60px',
-                        paddingTop: '40px',
-                        borderTop: '1px solid rgba(255, 107, 53, 0.1)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '30px'
-                    }}>
-                        {/* Progress Dots */}
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            {glossaryData.map((p) => (
-                                <motion.div
-                                    key={p.id}
-                                    style={{
-                                        width: p.id === pageNum ? '32px' : '8px',
-                                        height: '8px',
-                                        borderRadius: '4px',
-                                        background: p.id === pageNum
-                                            ? 'linear-gradient(90deg, #FF6B35, #FF8C42)'
-                                            : 'rgba(255, 107, 53, 0.2)',
-                                        boxShadow: p.id === pageNum ? '0 0 12px rgba(255, 107, 53, 0.4)' : 'none'
-                                    }}
-                                    layout
-                                />
-                            ))}
-                        </div>
-
-                        <div className="nav-buttons-container">
-                            <button
-                                onClick={handlePrev}
-                                className={`btn btn-secondary nav-action-btn ${isFirstPage ? 'disabled' : ''}`}
-                                disabled={isFirstPage}
-                                style={{
-                                    opacity: isFirstPage ? 0.3 : 1
-                                }}
-                            >
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ transform: 'rotate(180deg)' }}>
-                                    <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <span>السابق</span>
-                            </button>
-
-                            <button
-                                onClick={handleNext}
-                                className="btn btn-primary nav-action-btn nav-action-btn-next"
-                            >
-                                <span style={{ fontWeight: 800 }}>{isLastPage ? 'العودة للفهرس' : 'التالي'}</span>
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                    <path d="M13 5l-5 5 5 5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                    <ReadingPagination
+                        currentIndex={pageNum - 1}
+                        total={totalPages}
+                        onPrev={handlePrev}
+                        onNext={handleNext}
+                        isFirst={isFirstPage}
+                        isLast={isLastPage}
+                        isNextLocked={!isAuthed}
+                        onLockedClick={() => setIsLockOverlayOpen(true)}
+                    />
 
                     <div style={{ textAlign: 'center', marginTop: '40px' }}>
                         <Link href="/toc" style={{ color: '#666', textDecoration: 'none', fontSize: '0.9rem' }}>

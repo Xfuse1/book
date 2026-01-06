@@ -14,9 +14,19 @@
   - صور PNG عالية الجودة (روبوت، مكعب، ترس)
   - تدرجات لونية مخصصة وتأثيرات توهج (Glow Effects)
 
+## 🗄️ نظام Supabase (Backend)
+- **معرف المشروع (Project ID)**: `pqqaupbkamtfjweajkjo`
+- **الجداول**: `users`, `sessions`, `reading_progress`.
+- **✅ حالة الربط (Integration Status)**: تم ربط واجهات تسجيل الدخول وإنشاء الحساب بـ Supabase Auth بنجاح.
+- **🛡️ الحماية (Security)**:
+  - تم تفعيل RLS على جدول `reading_progress`.
+  - تم إنشاء Trigger لربط مستخدمي Supabase Auth بجدول `public.users` تلقائياً.
+
+
 ## 🎨 نظام التصميم (Design System)
 - **السمة**: Dark Cinematic
 - **الألوان**:
+supabase
   - خلفية: `#050505` (أسود عميق)
   - أساسي: `#FF6B35` (برتقالي ناري)
   - متوهج: `#FFB800` (ذهبي)

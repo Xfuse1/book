@@ -7,27 +7,35 @@ import Navigation from '@/components/Navigation'
 import Robot from '@/components/Robot'
 import { introData } from '@/data/bookData'
 import { useEffect, useState } from 'react'
+import { verifySession } from '@/lib/auth'
+import LockedOverlay from '@/components/reading/LockedOverlay'
+import ReadingPagination from '@/components/reading/ReadingPagination'
 
 export default function IntroPage() {
     const params = useParams()
     const router = useRouter()
     const pageNum = parseInt(params.page as string) || 1
-    const [currentPage, setCurrentPage] = useState(introData[pageNum - 1])
 
-    useEffect(() => {
-        const page = introData[pageNum - 1]
-        if (page) {
-            setCurrentPage(page)
-        } else {
-            router.push('/toc')
-        }
-    }, [pageNum, router])
+    const [isAuthed, setIsAuthed] = useState(false)
+    const [isLockOverlayOpen, setIsLockOverlayOpen] = useState(false)
 
-    if (!currentPage) return null
-
+    const currentPage = introData[pageNum - 1]
     const totalPages = introData.length
     const isFirstPage = pageNum === 1
     const isLastPage = pageNum === totalPages
+
+    // Intro pages are always free
+    const isCurrentPageLocked = false
+
+    useEffect(() => {
+        const authed = verifySession()
+        setIsAuthed(authed)
+    }, [pageNum])
+
+    if (!currentPage) {
+        if (typeof window !== 'undefined' && params.page) router.push('/toc')
+        return null
+    }
 
     const handleNext = () => {
         if (!isLastPage) {
@@ -49,9 +57,21 @@ export default function IntroPage() {
         <>
             <Navigation />
 
+            {/* Locked Overlay (available if needed, though intro is free) */}
+            <LockedOverlay
+                isOpen={isLockOverlayOpen}
+                onClose={() => setIsLockOverlayOpen(false)}
+                nextPath={`/read/intro/${pageNum}`}
+            />
+
             <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '20px' }}>
 
-                <div className="container" style={{ paddingBottom: '40px' }}>
+                <div className="container" style={{
+                    paddingBottom: '40px',
+                    filter: isCurrentPageLocked ? 'blur(8px)' : 'none',
+                    pointerEvents: isCurrentPageLocked ? 'none' : 'auto',
+                    opacity: isCurrentPageLocked ? 0.3 : 1
+                }}>
                     {/* Header */}
                     <motion.div
                         style={{ marginBottom: '24px' }}
@@ -71,7 +91,7 @@ export default function IntroPage() {
                                 {currentPage.title}
                             </h1>
                         </div>
-                        <p style={{ fontSize: '1.125rem', color: '#b0b0b0' }}>
+                        <p style={{ fontSize: '1.25rem', color: '#b0b0b0' }}>
                             {currentPage.description}
                         </p>
                     </motion.div>
@@ -144,55 +164,15 @@ export default function IntroPage() {
                     </div>
 
                     {/* Navigation Buttons */}
-                    <motion.div
-                        className="lesson-nav-footer"
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginTop: '40px',
-                            paddingTop: '32px',
-                            borderTop: '1px solid rgba(255, 107, 53, 0.2)',
-                        }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.6 }}
-                    >
-                        <button
-                            onClick={handlePrev}
-                            className="btn btn-secondary"
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style={{ transform: 'rotate(180deg)' }}>
-                                <path d="M12 4l-8 8 8 8" stroke="currentColor" strokeWidth="2" fill="none" />
-                            </svg>
-                            <span>{isFirstPage ? 'الفهرس' : 'السابق'}</span>
-                        </button>
-
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '300px' }}>
-                            {introData.map((p) => (
-                                <div
-                                    key={p.id}
-                                    style={{
-                                        width: p.id === pageNum ? '24px' : '6px',
-                                        height: '6px',
-                                        borderRadius: '3px',
-                                        background: p.id === pageNum
-                                            ? 'linear-gradient(135deg, #FF6B35, #FF8C42)'
-                                            : 'rgba(255, 107, 53, 0.3)',
-                                        transition: 'all 0.3s ease',
-                                    }}
-                                />
-                            ))}
-                        </div>
-
-                        <button onClick={handleNext} className="btn btn-primary">
-                            <span>{isLastPage ? 'ابدأ الفصل الأول' : 'التالي'}</span>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M12 4l-8 8 8 8" stroke="currentColor" strokeWidth="2" fill="none" />
-                            </svg>
-                        </button>
-                    </motion.div>
+                    <ReadingPagination
+                        currentIndex={pageNum - 1}
+                        total={totalPages}
+                        onPrev={handlePrev}
+                        onNext={handleNext}
+                        isFirst={isFirstPage}
+                        isLast={isLastPage}
+                        isNextLocked={false} // Intro never locks next button as it leads to free Part 1
+                    />
 
                     <div style={{ textAlign: 'center', marginTop: '40px' }}>
                         <Link href="/toc" style={{ color: '#b0b0b0', textDecoration: 'none', fontSize: '0.9rem' }}>
@@ -204,3 +184,4 @@ export default function IntroPage() {
         </>
     )
 }
+

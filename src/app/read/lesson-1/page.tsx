@@ -2,17 +2,50 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Navigation from '@/components/Navigation'
 import Robot from '@/components/Robot'
+import { useEffect, useState } from 'react'
+import { verifySession } from '@/lib/auth'
+import LockedOverlay from '@/components/reading/LockedOverlay'
+import ReadingPagination from '@/components/reading/ReadingPagination'
 
 export default function Lesson1() {
+    const router = useRouter()
+    const [isAuthed, setIsAuthed] = useState(false)
+    const [isLockOverlayOpen, setIsLockOverlayOpen] = useState(false)
+
+    useEffect(() => {
+        const authed = verifySession()
+        setIsAuthed(authed)
+    }, [])
+
+    const handleNext = () => {
+        router.push('/read/section-1/1')
+    }
+
+    const handlePrev = () => {
+        router.push('/toc')
+    }
+
     return (
         <>
             <Navigation />
 
+            {/* Locked Overlay */}
+            <LockedOverlay
+                isOpen={isLockOverlayOpen}
+                onClose={() => setIsLockOverlayOpen(false)}
+                nextPath="/read/lesson-1"
+            />
+
             <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '20px' }}>
 
-                <div className="container" style={{ paddingBottom: '80px' }}>
+                <div className="container" style={{
+                    paddingBottom: '80px',
+                    filter: isAuthed ? 'none' : 'none', // Keeping it free for now as it's lesson 1
+                    opacity: 1
+                }}>
                     {/* Header */}
                     <motion.div
                         style={{ marginBottom: '40px' }}
@@ -32,7 +65,7 @@ export default function Lesson1() {
                                 الأولى مع البرومبتات
                             </h1>
                         </div>
-                        <p style={{ fontSize: '1.125rem', color: '#b0b0b0' }}>
+                        <p style={{ fontSize: '1.25rem', color: '#b0b0b0' }}>
                             مقدمة حول كيفية عمل البرومبتات ومتعددة استخدامها في البرمجة
                         </p>
                     </motion.div>
@@ -174,51 +207,14 @@ export default function Lesson1() {
                     </div>
 
                     {/* Navigation Buttons */}
-                    <motion.div
-                        className="lesson-nav-footer"
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginTop: '60px',
-                            paddingTop: '40px',
-                            borderTop: '1px solid rgba(255, 107, 53, 0.2)',
-                        }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.6 }}
-                    >
-                        <Link href="/toc" className="btn btn-secondary">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M8 16l8-8-8-8" stroke="currentColor" strokeWidth="2" fill="none" />
-                            </svg>
-                            <span>العودة إلى الفهرس</span>
-                        </Link>
-
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                            {[1, 2, 3, 4, 5].map((num) => (
-                                <div
-                                    key={num}
-                                    style={{
-                                        width: num === 1 ? '32px' : '8px',
-                                        height: '8px',
-                                        borderRadius: '4px',
-                                        background: num === 1
-                                            ? 'linear-gradient(135deg, #FF6B35, #FF8C42)'
-                                            : 'rgba(255, 107, 53, 0.3)',
-                                        transition: 'all 0.3s ease',
-                                    }}
-                                />
-                            ))}
-                        </div>
-
-                        <Link href="/read/lesson-2" className="btn btn-primary">
-                            <span>التالي</span>
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M12 4l-8 8 8 8" stroke="currentColor" strokeWidth="2" fill="none" />
-                            </svg>
-                        </Link>
-                    </motion.div>
+                    <ReadingPagination
+                        currentIndex={0}
+                        total={1}
+                        onPrev={handlePrev}
+                        onNext={handleNext}
+                        isFirst={true}
+                        isLast={true}
+                    />
                 </div>
             </main>
         </>

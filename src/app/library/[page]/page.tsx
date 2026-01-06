@@ -7,29 +7,46 @@ import Navigation from '@/components/Navigation'
 import { libraryData } from '@/data/bookData'
 import { useEffect, useState } from 'react'
 
+import { verifySession } from '@/lib/auth'
+import LockedOverlay from '@/components/reading/LockedOverlay'
+import ReadingPagination from '@/components/reading/ReadingPagination'
+
 export default function LibraryPage() {
     const params = useParams()
     const router = useRouter()
     const pageNum = parseInt(params.page as string) || 1
-    const [currentPage, setCurrentPage] = useState(libraryData[pageNum - 1])
+
+    const [isAuthed, setIsAuthed] = useState(false)
+    const [isLockOverlayOpen, setIsLockOverlayOpen] = useState(false)
     const [showToast, setShowToast] = useState(false)
 
-    useEffect(() => {
-        const page = libraryData[pageNum - 1]
-        if (page) {
-            setCurrentPage(page)
-        } else {
-            router.push('/toc')
-        }
-    }, [pageNum, router])
-
-    if (!currentPage) return null
-
+    const currentPage = libraryData[pageNum - 1]
     const totalPages = libraryData.length
     const isFirstPage = pageNum === 1
     const isLastPage = pageNum === totalPages
 
+    // Library/Templates are locked content
+    const isCurrentPageLocked = !isAuthed
+
+    useEffect(() => {
+        const authed = verifySession()
+        setIsAuthed(authed)
+
+        if (!authed) {
+            setIsLockOverlayOpen(true)
+        }
+    }, [pageNum])
+
+    if (!currentPage) {
+        if (typeof window !== 'undefined' && params.page) router.push('/toc')
+        return null
+    }
+
     const handleNext = () => {
+        if (!isAuthed) {
+            setIsLockOverlayOpen(true)
+            return
+        }
         if (!isLastPage) {
             router.push(`/library/${pageNum + 1}`)
         } else {
@@ -87,9 +104,25 @@ export default function LibraryPage() {
         <>
             <Navigation />
 
+            {/* Locked Overlay */}
+            <LockedOverlay
+                isOpen={isLockOverlayOpen}
+                onClose={() => {
+                    if (!isAuthed) router.push('/read/section-1/2')
+                    else setIsLockOverlayOpen(false)
+                }}
+                nextPath={`/library/${pageNum}`}
+                isDirectAccess={!isAuthed}
+            />
+
             <main style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingTop: '20px' }}>
 
-                <div className="container" style={{ paddingBottom: '40px' }}>
+                <div className="container" style={{
+                    paddingBottom: '40px',
+                    filter: isCurrentPageLocked ? 'blur(8px)' : 'none',
+                    pointerEvents: isCurrentPageLocked ? 'none' : 'auto',
+                    opacity: isCurrentPageLocked ? 0.3 : 1
+                }}>
                     <motion.div
                         style={{ marginBottom: '24px', textAlign: 'center' }}
                         initial={{ opacity: 0, y: -20 }}
@@ -189,42 +222,16 @@ export default function LibraryPage() {
                     </div>
 
                     {/* Navigation */}
-                    <div className="lesson-nav-footer" style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginTop: '60px',
-                        paddingTop: '32px',
-                        borderTop: '1px solid rgba(255, 107, 53, 0.2)',
-                    }}>
-                        <button
-                            onClick={handlePrev}
-                            className={`btn btn-secondary ${isFirstPage ? 'disabled' : ''}`}
-                            disabled={isFirstPage}
-                            style={{ opacity: isFirstPage ? 0.5 : 1 }}
-                        >
-                            <span>السابق</span>
-                        </button>
-
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            {libraryData.map((_, i) => (
-                                <div
-                                    key={i}
-                                    style={{
-                                        width: (i + 1) === pageNum ? '24px' : '6px',
-                                        height: '6px',
-                                        borderRadius: '3px',
-                                        background: (i + 1) === pageNum ? '#FF6B35' : 'rgba(255, 107, 53, 0.3)',
-                                        transition: 'all 0.3s ease',
-                                    }}
-                                />
-                            ))}
-                        </div>
-
-                        <button onClick={handleNext} className="btn btn-primary">
-                            <span>{isLastPage ? 'العودة للفهرس' : 'التالي'}</span>
-                        </button>
-                    </div>
+                    <ReadingPagination
+                        currentIndex={pageNum - 1}
+                        total={totalPages}
+                        onPrev={handlePrev}
+                        onNext={handleNext}
+                        isFirst={isFirstPage}
+                        isLast={isLastPage}
+                        isNextLocked={!isAuthed}
+                        onLockedClick={() => setIsLockOverlayOpen(true)}
+                    />
 
                     <div style={{ textAlign: 'center', marginTop: '40px' }}>
                         <Link href="/toc" style={{ color: '#b0b0b0', textDecoration: 'none' }}>
@@ -261,3 +268,4 @@ export default function LibraryPage() {
         </>
     )
 }
+

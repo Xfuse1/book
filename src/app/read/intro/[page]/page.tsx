@@ -163,7 +163,7 @@ export default function IntroPage() {
                         </motion.div>
                     </div>
 
-                    {/* Navigation Buttons */}
+                    {/* Build trigger: Fix applied for onLockedClick props */}
                     <ReadingPagination
                         currentIndex={pageNum - 1}
                         total={totalPages}

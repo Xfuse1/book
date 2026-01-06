@@ -171,7 +171,8 @@ export default function IntroPage() {
                         onNext={handleNext}
                         isFirst={isFirstPage}
                         isLast={isLastPage}
-                        isNextLocked={false} // Intro never locks next button as it leads to free Part 1
+                        isNextLocked={false}
+                        onLockedClick={() => setIsLockOverlayOpen(true)}
                     />
 
                     <div style={{ textAlign: 'center', marginTop: '40px' }}>

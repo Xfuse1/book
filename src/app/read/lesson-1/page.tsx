@@ -214,6 +214,8 @@ export default function Lesson1() {
                         onNext={handleNext}
                         isFirst={true}
                         isLast={true}
+                        isNextLocked={false}
+                        onLockedClick={() => setIsLockOverlayOpen(true)}
                     />
                 </div>
             </main>

@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import AuthCard from '@/components/auth/AuthCard'
 import AuthInput from '@/components/auth/AuthInput'
-import DeviceSwitchModal from '@/components/auth/DeviceSwitchModal'
 import Navigation from '@/components/Navigation'
 import { authSystem } from '@/lib/auth_system'
 import '@/app/auth.css'
@@ -19,7 +18,6 @@ function LoginContent() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false)
 
     // Custom auth system login with device fingerprinting
     const login = async (email: string, pass: string) => {
@@ -27,15 +25,10 @@ function LoginContent() {
         if (result.ok) {
             return { ok: true }
         } else if (result.deviceMismatch) {
-            return { ok: false, reason: 'device_mismatch' as const }
+            return { ok: false, reason: 'device_mismatch' as const, error: result.error }
         } else {
-            return { ok: false, reason: 'invalid' as const }
+            return { ok: false, reason: 'invalid' as const, error: result.error }
         }
-    }
-
-    // Switch device using authSystem
-    const switchDevice = async (e: string, p: string) => {
-        return await authSystem.switchDevice(e, p)
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -64,28 +57,12 @@ function LoginContent() {
             router.push(nextPath)
         } else {
             if (result.reason === 'device_mismatch') {
-                setIsDeviceModalOpen(true)
+                setError(result.error || 'لا يمكن تسجيل الدخول من جهاز جديد. تم تحديد جهاز آخر سابقًا.')
             } else if (result.reason === 'invalid') {
-                setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+                setError(result.error || 'البريد الإلكتروني أو كلمة المرور غير صحيحة')
             } else {
                 setError('حدث خطأ في الاتصال، حاول مرة أخرى')
             }
-        }
-    }
-
-    const handleDeviceConfirm = async () => {
-        setIsLoading(true)
-        const result = await switchDevice(email, password)
-        setIsLoading(false)
-        if (result.ok) {
-            console.log('✅ تم تبديل الجهاز بنجاح')
-            setIsDeviceModalOpen(false)
-            // Add small delay to ensure cookies are saved before redirect
-            await new Promise(resolve => setTimeout(resolve, 100))
-            router.push(nextPath)
-        } else {
-            setError(result.error || 'فشل في تبديل الجهاز')
-            setIsDeviceModalOpen(false)
         }
     }
 
@@ -137,13 +114,6 @@ function LoginContent() {
                     </Link>
                 </div>
             </AuthCard>
-
-            <DeviceSwitchModal
-                isOpen={isDeviceModalOpen}
-                onClose={() => setIsDeviceModalOpen(false)}
-                onConfirm={handleDeviceConfirm}
-                isLoading={isLoading}
-            />
         </main>
     )
 }

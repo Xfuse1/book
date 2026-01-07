@@ -236,55 +236,33 @@ class AuthSystem {
                 .eq('is_active', true)
 
             // 5. Compare fingerprints
-            if (devices && devices.length > 0) {
-                const matchedDevice = devices.find(d => d.device_fingerprint === currentFingerprint.hash)
+            const matchedDevice = devices?.find(d => d.device_fingerprint === currentFingerprint.hash)
 
-                if (matchedDevice) {
-                    // Same device - allow login
-                    // Update last_used
-                    await supabase
-                        .from('devices')
-                        .update({ last_used: new Date().toISOString() })
-                        .eq('id', matchedDevice.id)
+            if (matchedDevice) {
+                // Same device - allow login
+                // Update last_used
+                await supabase
+                    .from('devices')
+                    .update({ last_used: new Date().toISOString() })
+                    .eq('id', matchedDevice.id)
 
-                    // Create new session
-                    const session = await this.createSession(user.id, matchedDevice.device_id)
-                    if (!session) {
-                        return { ok: false, error: 'فشل في إنشاء الجلسة' }
-                    }
-
-                    // Save to cookies
-                    saveAuthCookies(session.token, matchedDevice.device_id, user.id)
-
-                    return { ok: true, userId: user.id }
-                } else {
-                    // Different device - reject with device mismatch flag
-                    return {
-                        ok: false,
-                        error: 'هذا الحساب مسجل على جهاز آخر',
-                        deviceMismatch: true,
-                    }
-                }
-            } else {
-                // No registered devices - register this one (first login after some cleanup perhaps)
-                const deviceId = deviceFingerprint.generateDeviceId()
-
-                await supabase.from('devices').insert({
-                    user_id: user.id,
-                    device_id: deviceId,
-                    device_fingerprint: currentFingerprint.hash,
-                    device_info: currentFingerprint.info,
-                    is_active: true,
-                })
-
-                const session = await this.createSession(user.id, deviceId)
+                // Create new session
+                const session = await this.createSession(user.id, matchedDevice.device_id)
                 if (!session) {
                     return { ok: false, error: 'فشل في إنشاء الجلسة' }
                 }
 
-                saveAuthCookies(session.token, deviceId, user.id)
+                // Save to cookies
+                saveAuthCookies(session.token, matchedDevice.device_id, user.id)
 
                 return { ok: true, userId: user.id }
+            } else {
+                // Different device or no device registered - reject
+                return {
+                    ok: false,
+                    error: 'لا يمكن تسجيل الدخول من جهاز جديد. تم تحديد جهاز آخر سابقًا.',
+                    deviceMismatch: true,
+                }
             }
         } catch (err) {
             console.error('Login error:', err)

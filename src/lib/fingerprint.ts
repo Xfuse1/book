@@ -45,11 +45,11 @@ class DeviceFingerprint {
         // Use ONLY properties that are identical across ALL browsers on the same machine
         // We exclude browser-specific info (userAgent, languages, canvas, webgl strings)
         // to allow the same device to have the same hash across different browsers.
+        // NOTE: screenResolution is excluded because DevTools/Responsive mode can change it
         // NOTE: Brave and some privacy-focused browsers may spoof cpuCores and memory,
         // so we exclude them to ensure consistent fingerprints across all browsers.
         const hardwareFingerprint = {
             p: info.platform,
-            r: info.screenResolution,
             t: info.timezone,
             cd: info.colorDepth
         }

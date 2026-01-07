@@ -60,18 +60,36 @@ class AuthSystem {
      * Allows same device across different browsers by comparing hardware properties
      */
     private isMatchingDevice(savedDeviceInfo: any, currentFingerprint: DeviceFingerprintData): boolean {
-        if (!savedDeviceInfo) return false
+        if (!savedDeviceInfo) {
+            console.log('❌ No saved device info')
+            return false
+        }
+        
+        // Log comparison details
+        console.log('🔍 Comparing devices:')
+        console.log('   Saved:', {
+            p: savedDeviceInfo.platform,
+            t: savedDeviceInfo.timezone,
+            cd: savedDeviceInfo.colorDepth
+        })
+        console.log('   Current:', {
+            p: currentFingerprint.info.platform,
+            t: currentFingerprint.info.timezone,
+            cd: currentFingerprint.info.colorDepth
+        })
         
         // Compare core hardware properties that are identical across all browsers
+        // screenResolution is excluded because DevTools/Responsive mode can change it
         const isSameDevice = (
             savedDeviceInfo.platform === currentFingerprint.info.platform &&
-            savedDeviceInfo.screenResolution === currentFingerprint.info.screenResolution &&
             savedDeviceInfo.timezone === currentFingerprint.info.timezone &&
             savedDeviceInfo.colorDepth === currentFingerprint.info.colorDepth
         )
         
         if (isSameDevice) {
             console.log('✅ Device matched by hardware properties (cross-browser compatible)')
+        } else {
+            console.log('❌ Device NOT matched - properties differ')
         }
         
         return isSameDevice

@@ -70,26 +70,36 @@ class AuthSystem {
         console.log('   Saved:', {
             p: savedDeviceInfo.platform,
             t: savedDeviceInfo.timezone,
-            cd: savedDeviceInfo.colorDepth
+            cd: savedDeviceInfo.colorDepth,
+            screen: savedDeviceInfo.screenResolution,
+            cpu: savedDeviceInfo.cpuCores,
+            mem: savedDeviceInfo.memory
         })
         console.log('   Current:', {
             p: currentFingerprint.info.platform,
             t: currentFingerprint.info.timezone,
-            cd: currentFingerprint.info.colorDepth
+            cd: currentFingerprint.info.colorDepth,
+            screen: currentFingerprint.info.screenResolution,
+            cpu: currentFingerprint.info.cpuCores,
+            mem: currentFingerprint.info.memory
         })
         
         // Compare core hardware properties that are identical across all browsers
-        // screenResolution is excluded because DevTools/Responsive mode can change it
+        // We use screen.width/height (actual screen size, not window size)
+        // cpuCores and memory help distinguish different physical devices
         const isSameDevice = (
             savedDeviceInfo.platform === currentFingerprint.info.platform &&
             savedDeviceInfo.timezone === currentFingerprint.info.timezone &&
-            savedDeviceInfo.colorDepth === currentFingerprint.info.colorDepth
+            savedDeviceInfo.colorDepth === currentFingerprint.info.colorDepth &&
+            savedDeviceInfo.screenResolution === currentFingerprint.info.screenResolution &&
+            savedDeviceInfo.cpuCores === currentFingerprint.info.cpuCores &&
+            savedDeviceInfo.memory === currentFingerprint.info.memory
         )
         
         if (isSameDevice) {
             console.log('✅ Device matched by hardware properties (cross-browser compatible)')
         } else {
-            console.log('❌ Device NOT matched - properties differ')
+            console.log('❌ Device NOT matched - different device detected')
         }
         
         return isSameDevice

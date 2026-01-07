@@ -56,6 +56,28 @@ export interface SessionVerifyResult {
 
 class AuthSystem {
     /**
+     * Compare device fingerprints flexibly
+     * Allows same device across different browsers by comparing hardware properties
+     */
+    private isMatchingDevice(savedDeviceInfo: any, currentFingerprint: DeviceFingerprintData): boolean {
+        if (!savedDeviceInfo) return false
+        
+        // Compare core hardware properties that are identical across all browsers
+        const isSameDevice = (
+            savedDeviceInfo.platform === currentFingerprint.info.platform &&
+            savedDeviceInfo.screenResolution === currentFingerprint.info.screenResolution &&
+            savedDeviceInfo.timezone === currentFingerprint.info.timezone &&
+            savedDeviceInfo.colorDepth === currentFingerprint.info.colorDepth
+        )
+        
+        if (isSameDevice) {
+            console.log('✅ Device matched by hardware properties (cross-browser compatible)')
+        }
+        
+        return isSameDevice
+    }
+
+    /**
      * Hash a password using SHA-256
      */
     private async hashPassword(password: string): Promise<string> {
@@ -235,15 +257,27 @@ class AuthSystem {
                 .eq('user_id', user.id)
                 .eq('is_active', true)
 
-            // 5. Compare fingerprints
-            const matchedDevice = devices?.find(d => d.device_fingerprint === currentFingerprint.hash)
+            // 5. Compare fingerprints - flexible matching for cross-browser support
+            const matchedDevice = devices?.find(d => {
+                // First: try exact hash match
+                if (d.device_fingerprint === currentFingerprint.hash) {
+                    console.log('✅ Exact fingerprint match')
+                    return true
+                }
+                // Second: try flexible hardware-based match (for different browsers on same device)
+                return this.isMatchingDevice(d.device_info, currentFingerprint)
+            })
 
             if (matchedDevice) {
                 // Same device - allow login
-                // Update last_used
+                // Update last_used and fingerprint (to keep it current)
                 await supabase
                     .from('devices')
-                    .update({ last_used: new Date().toISOString() })
+                    .update({ 
+                        last_used: new Date().toISOString(),
+                        device_fingerprint: currentFingerprint.hash,
+                        device_info: currentFingerprint.info
+                    })
                     .eq('id', matchedDevice.id)
 
                 // Create new session
@@ -374,12 +408,26 @@ class AuthSystem {
                 return { valid: false, error: 'الجهاز غير مسجل' }
             }
 
-            // 5. Compare fingerprints
-            if (device.device_fingerprint !== currentFingerprint.hash) {
-                // Fingerprint changed - invalidate session
+            // 5. Compare fingerprints - flexible matching for cross-browser support
+            const isExactMatch = device.device_fingerprint === currentFingerprint.hash
+            const isFlexibleMatch = this.isMatchingDevice(device.device_info, currentFingerprint)
+            
+            if (!isExactMatch && !isFlexibleMatch) {
+                // Fingerprint changed and hardware doesn't match - invalidate session
                 await supabase.from('sessions').delete().eq('id', session.id)
                 clearAuthCookies()
                 return { valid: false, error: 'تم الكشف عن تغيير في الجهاز' }
+            }
+            
+            // Update fingerprint if it changed but device matched
+            if (!isExactMatch && isFlexibleMatch) {
+                await supabase
+                    .from('devices')
+                    .update({ 
+                        device_fingerprint: currentFingerprint.hash,
+                        device_info: currentFingerprint.info
+                    })
+                    .eq('id', device.id)
             }
 
             /* Phone verification disabled

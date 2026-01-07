@@ -58,6 +58,7 @@ class DeviceFingerprint {
         const hash = await this.hashString(fingerprintString)
 
         console.log('🖥️ CROSS-BROWSER HASH:', hash)
+        console.log('🔍 Hardware Fingerprint Details:', hardwareFingerprint)
 
         return {
             hash,

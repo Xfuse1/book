@@ -42,20 +42,22 @@ class DeviceFingerprint {
             pixelRatio: window.devicePixelRatio || 1,
         }
 
-        // Create a stable hardware-focused string for hashing
-        // We exclude browser-specific info (userAgent, languages, canvas)
+        // Use ONLY properties that are identical across ALL browsers on the same machine
+        // We exclude browser-specific info (userAgent, languages, canvas, webgl strings)
         // to allow the same device to have the same hash across different browsers.
         const hardwareFingerprint = {
             p: info.platform,
             r: info.screenResolution,
             c: info.cpuCores,
             m: info.memory,
-            g: info.webglFingerprint, // GPU information is very stable across browsers
-            t: info.timezone
+            t: info.timezone,
+            cd: info.colorDepth
         }
 
         const fingerprintString = JSON.stringify(hardwareFingerprint)
         const hash = await this.hashString(fingerprintString)
+
+        console.log('🖥️ CROSS-BROWSER HASH:', hash)
 
         return {
             hash,

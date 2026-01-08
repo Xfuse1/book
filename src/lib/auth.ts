@@ -1,4 +1,4 @@
-import { getAuthCookies } from './cookie_utils'
+import { supabase } from './supabase'
 
 /**
  * Verify if user has a valid session
@@ -8,19 +8,27 @@ import { getAuthCookies } from './cookie_utils'
 export function verifySession(): boolean {
     if (typeof window === 'undefined') return false;
 
-    // Check for auth cookies from our custom auth system
-    const { sessionToken, deviceId, userId } = getAuthCookies();
+    // With Supabase Auth, we check localStorage for session
+    // This is a quick sync check - for full verification use authSystem.verifySession()
+    const supabaseKey = `sb-pqqaupbkamtfjweajkjo-auth-token`
+    const storedSession = localStorage.getItem(supabaseKey)
 
-    const isValid = !!(sessionToken && deviceId && userId);
-    console.log('🔍 التحقق من الجلسة:', {
-        hasSession: !!sessionToken,
-        hasDevice: !!deviceId,
-        hasUser: !!userId,
-        isValid
-    });
+    const isValid = !!storedSession
+    console.log('🔍 التحقق من الجلسة:', { isValid });
 
-    // If all three cookies exist, consider the session valid
-    // Note: This is a basic check. For full verification (fingerprint, expiry, etc.)
-    // the page should use authSystem.verifySession() on mount
     return isValid;
+}
+
+/**
+ * Async version to check session with Supabase
+ */
+export async function verifySessionAsync(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+
+    try {
+        const { data: { session } } = await supabase.auth.getSession()
+        return !!session
+    } catch {
+        return false
+    }
 }

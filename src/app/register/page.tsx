@@ -22,6 +22,7 @@ function RegisterContent() {
         confirmPassword: ''
     })
     const [error, setError] = useState('')
+    const [success, setSuccess] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,6 +37,7 @@ function RegisterContent() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
+        setSuccess('')
 
         // Validation
         if (!form.fullName || !form.email || !form.password || !form.confirmPassword) {
@@ -60,7 +62,11 @@ function RegisterContent() {
         setIsLoading(false)
 
         if (result.ok) {
-            router.push(nextPath)
+            if (result.needsEmailConfirmation) {
+                setSuccess('تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتأكيد الحساب.')
+            } else {
+                router.push(nextPath)
+            }
         } else {
             setError(result.error || 'حدث خطأ غير متوقع')
         }
@@ -75,6 +81,7 @@ function RegisterContent() {
                 subtitle="ابدأ رحلتك في تعلم توجيهات الذكاء الاصطناعي"
             >
                 {error && <div id="register-error" className="auth-global-error">{error}</div>}
+                {success && <div className="auth-success-box">{success}</div>}
 
                 <form id="register-form" className="auth-form" onSubmit={handleSubmit}>
                     <AuthInput

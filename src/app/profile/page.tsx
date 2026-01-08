@@ -23,16 +23,19 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const loadUserData = async () => {
-            const userId = authSystem.getCurrentUserId()
+            const userId = await authSystem.getCurrentUserId()
             if (!userId) {
                 router.push('/login?next=/profile')
                 return
             }
 
+            // Get email from Supabase Auth
+            const userEmail = await authSystem.getCurrentUserEmail()
+            
             const user = await authSystem.getUserInfo(userId)
             if (user) {
                 setFullName(user.full_name || '')
-                setEmail(user.email)
+                setEmail(userEmail || '')
             } else {
                 setError('فشل في تحميل بيانات المستخدم')
             }
@@ -47,7 +50,7 @@ export default function ProfilePage() {
         setError('')
         setSuccess('')
 
-        const userId = authSystem.getCurrentUserId()
+        const userId = await authSystem.getCurrentUserId()
         if (!userId) return
 
         // Validation

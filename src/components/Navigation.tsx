@@ -21,7 +21,7 @@ export default function Navigation() {
     useEffect(() => {
         // Verify session with database
         const verifyUserSession = async () => {
-            const userId = authSystem.getCurrentUserId()
+            const userId = await authSystem.getCurrentUserId()
             if (userId) {
                 // Verify with database - this will clear cookies if session is invalid
                 const result = await authSystem.verifySession()
@@ -41,9 +41,10 @@ export default function Navigation() {
         verifyUserSession()
 
         // Background check every 10 seconds to catch invalidation from other devices
-        const intervalId = setInterval(() => {
+        const intervalId = setInterval(async () => {
             // Only check if we have a userId cookie, otherwise we're already logged out
-            if (authSystem.getCurrentUserId()) {
+            const userId = await authSystem.getCurrentUserId()
+            if (userId) {
                 verifyUserSession()
             }
         }, 10000)

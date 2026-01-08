@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AuthCard from '@/components/auth/AuthCard'
 import AuthInput from '@/components/auth/AuthInput'
@@ -10,11 +9,11 @@ import { authSystem } from '@/lib/auth_system'
 import '@/app/auth.css'
 
 export default function ForgotPasswordPage() {
-    const router = useRouter()
     const [email, setEmail] = useState('')
     const [message, setMessage] = useState('')
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [emailSent, setEmailSent] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -26,16 +25,18 @@ export default function ForgotPasswordPage() {
             return
         }
 
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            setError('بريد إلكتروني غير صالح')
+            return
+        }
+
         setIsLoading(true)
         const result = await authSystem.forgotPassword(email)
         setIsLoading(false)
 
         if (result.ok) {
-            setMessage(result.message || 'تم إرسال رمز التحقق')
-            // Redirect to reset password after a short delay
-            setTimeout(() => {
-                router.push(`/reset-password?email=${encodeURIComponent(email)}`)
-            }, 2000)
+            setMessage(result.message || 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني')
+            setEmailSent(true)
         } else {
             setError(result.error || 'حدث خطأ ما')
         }
@@ -47,30 +48,48 @@ export default function ForgotPasswordPage() {
 
             <AuthCard
                 title="استعادة كلمة المرور"
-                subtitle="أدخل بريدك الإلكتروني للحصول على رمز التغيير"
+                subtitle={emailSent ? "تم إرسال الرابط!" : "أدخل بريدك الإلكتروني للحصول على رابط التغيير"}
             >
                 {error && <div className="auth-global-error">{error}</div>}
                 {message && <div className="auth-success-box">{message}</div>}
 
-                <form className="auth-form" onSubmit={handleSubmit}>
-                    <AuthInput
-                        id="forgot-email"
-                        label="البريد الإلكتروني"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="example@mail.com"
-                        required
-                    />
+                {!emailSent ? (
+                    <form className="auth-form" onSubmit={handleSubmit}>
+                        <AuthInput
+                            id="forgot-email"
+                            label="البريد الإلكتروني"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="example@mail.com"
+                            required
+                        />
 
-                    <button
-                        type="submit"
-                        className="btn btn-primary mt-md"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? <div className="auth-loader"></div> : "طلب رمز التغيير"}
-                    </button>
-                </form>
+                        <button
+                            type="submit"
+                            className="btn btn-primary mt-md"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? <div className="auth-loader"></div> : "إرسال رابط التغيير"}
+                        </button>
+                    </form>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                        <p style={{ marginBottom: '20px', color: '#666' }}>
+                            تحقق من بريدك الإلكتروني واضغط على الرابط لإعادة تعيين كلمة المرور.
+                        </p>
+                        <button
+                            className="btn btn-secondary"
+                            onClick={() => {
+                                setEmailSent(false)
+                                setMessage('')
+                                setEmail('')
+                            }}
+                        >
+                            إرسال مرة أخرى
+                        </button>
+                    </div>
+                )}
 
                 <div className="auth-footer">
                     <Link href="/login">

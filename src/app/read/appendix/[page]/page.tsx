@@ -33,7 +33,7 @@ export default function AppendixPage() {
         if (!authed) {
             setIsLockOverlayOpen(true)
         }
-    }, [pageNum])
+    }, [pageNum, isLastPage])
 
     if (!currentPage) {
         if (typeof window !== 'undefined' && params.page) router.push('/toc')

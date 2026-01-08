@@ -40,7 +40,7 @@ export default function Section1Page() {
             setIsLockOverlayOpen(true)
             setIsDirectAccess(true)
         }
-    }, [pageNum, isCurrentPageLocked])
+    }, [pageNum, isLastPage])
 
     if (!currentPage) {
         if (typeof window !== 'undefined') router.push('/toc')
@@ -98,7 +98,30 @@ export default function Section1Page() {
                         }}>
                             {currentPage.title}
                         </h1>
-                        <p style={{ fontSize: '1.15rem', color: '#b0b0b0', maxWidth: '800px', margin: '0 auto' }}>
+                        {pageNum <= FREE_PAGES_LIMIT && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                style={{
+                                    display: 'inline-block',
+                                    padding: '6px 20px',
+                                    background: 'rgba(255, 107, 53, 0.1)',
+                                    border: '1px solid rgba(255, 107, 53, 0.4)',
+                                    borderRadius: '30px',
+                                    marginTop: '8px'
+                                }}
+                            >
+                                <span style={{
+                                    fontSize: '0.9rem',
+                                    color: '#FF6B35',
+                                    fontWeight: '900',
+                                    letterSpacing: '0.5px'
+                                }}>
+                                    ✨ قراءة مجانية
+                                </span>
+                            </motion.div>
+                        )}
+                        <p style={{ fontSize: '1.15rem', color: '#b0b0b0', maxWidth: '800px', margin: '0 auto', marginTop: '16px' }}>
                             {currentPage.description}
                         </p>
                     </motion.div>

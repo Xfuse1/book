@@ -150,6 +150,33 @@
     font-size: var(--font-size-base);
 }
 
+.auth-link {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-orange-primary);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    display: inline-block;
+}
+
+.auth-link:hover {
+    color: var(--color-orange-glow);
+    text-decoration: underline;
+    transform: translateY(-1px);
+}
+
+.auth-success-box {
+    background: rgba(46, 213, 115, 0.1);
+    border: 1px solid rgba(46, 213, 115, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    color: #2ed573;
+    font-size: 0.9rem;
+    text-align: center;
+    line-height: 1.5;
+}
+
 .auth-footer a {
     font-weight: 700;
 }

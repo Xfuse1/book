@@ -33,7 +33,7 @@ export default function Section3Page() {
         if (!authed) {
             setIsLockOverlayOpen(true)
         }
-    }, [pageNum])
+    }, [pageNum, isLastPage])
 
     if (!currentPage) {
         if (typeof window !== 'undefined') router.push('/toc')

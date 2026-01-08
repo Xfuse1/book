@@ -30,7 +30,7 @@ export default function IntroPage() {
     useEffect(() => {
         const authed = verifySession()
         setIsAuthed(authed)
-    }, [pageNum])
+    }, [pageNum, isLastPage])
 
     if (!currentPage) {
         if (typeof window !== 'undefined' && params.page) router.push('/toc')
@@ -90,6 +90,18 @@ export default function IntroPage() {
                             <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', margin: 0 }}>
                                 {currentPage.title}
                             </h1>
+                            <span style={{
+                                padding: '6px 16px',
+                                background: 'rgba(255, 107, 53, 0.15)',
+                                border: '1px solid #FF6B35',
+                                borderRadius: '30px',
+                                fontSize: '0.85rem',
+                                color: '#FF6B35',
+                                fontWeight: '900',
+                                boxShadow: '0 0 20px rgba(255, 107, 53, 0.1)'
+                            }}>
+                                قراءة مجانية
+                            </span>
                         </div>
                         <p style={{ fontSize: '1.25rem', color: '#b0b0b0' }}>
                             {currentPage.description}
@@ -117,32 +129,47 @@ export default function IntroPage() {
                                         </p>
                                     )}
                                     {block.type === 'card' && (
-                                        <div className="card" style={{ padding: '24px' }}>
-                                            <h3 style={{ fontSize: '1.5rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <span style={{
-                                                    width: '40px',
-                                                    height: '40px',
+                                        <motion.div
+                                            className="card card-glow"
+                                            style={{
+                                                padding: '24px',
+                                                background: 'rgba(255, 107, 53, 0.04)',
+                                                border: '1px solid rgba(255, 107, 53, 0.15)',
+                                                borderRadius: '16px',
+                                                marginBottom: '24px'
+                                            }}
+                                            whileHover={{ y: -5, background: 'rgba(255, 107, 53, 0.06)' }}
+                                        >
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+                                                <div style={{
+                                                    width: '28px',
+                                                    height: '28px',
                                                     borderRadius: '50%',
-                                                    background: 'linear-gradient(135deg, #FF6B35, #FF8C42)',
+                                                    background: '#FF6B35',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    fontSize: '1.25rem',
-                                                    fontWeight: '900',
+                                                    fontSize: '0.9rem',
+                                                    fontWeight: 'bold',
+                                                    color: '#fff'
                                                 }}>
-                                                    {index + 1}
-                                                </span>
-                                                {block.title}
-                                            </h3>
-                                            <div style={{ fontSize: '1rem', color: '#b0b0b0', marginRight: '52px' }}>
-                                                {block.content.split('\n').map((line, i) => (
-                                                    <span key={i}>
-                                                        {line}
-                                                        <br />
-                                                    </span>
-                                                ))}
+                                                    ✦
+                                                </div>
+                                                <h3 style={{ fontSize: '1.3rem', margin: 0, color: '#FFB800' }}>
+                                                    {block.title}
+                                                </h3>
                                             </div>
-                                        </div>
+                                            <p style={{
+                                                fontSize: '1.05rem',
+                                                color: '#d0d0d0',
+                                                margin: 0,
+                                                lineHeight: '1.7',
+                                                whiteSpace: 'pre-line',
+                                                marginRight: '44px'
+                                            }}>
+                                                {block.content}
+                                            </p>
+                                        </motion.div>
                                     )}
                                 </div>
                             ))}

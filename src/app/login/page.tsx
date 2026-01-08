@@ -97,6 +97,12 @@ function LoginContent() {
                         required
                     />
 
+                    <div style={{ textAlign: 'left', marginTop: '-4px', marginBottom: '20px' }}>
+                        <Link href="/forgot-password" className="auth-link">
+                            هل نسيت كلمة المرور؟
+                        </Link>
+                    </div>
+
                     <button
                         id="login-submit"
                         type="submit"

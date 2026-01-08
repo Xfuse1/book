@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface LockedOverlayProps {
     isOpen: boolean
@@ -13,9 +14,7 @@ interface LockedOverlayProps {
 export default function LockedOverlay({ isOpen, onClose, nextPath, isDirectAccess }: LockedOverlayProps) {
     const router = useRouter()
 
-    const handleLogin = () => {
-        router.push(`/login?next=${encodeURIComponent(nextPath)}`)
-    }
+    const loginUrl = `/login?next=${encodeURIComponent(nextPath)}`
 
     const handleBack = () => {
         if (isDirectAccess) {
@@ -54,9 +53,9 @@ export default function LockedOverlay({ isOpen, onClose, nextPath, isDirectAcces
                         </p>
 
                         <div className="lock-actions">
-                            <button onClick={handleLogin} className="lock-btn-primary">
+                            <Link href={loginUrl} className="lock-btn-primary" style={{ textDecoration: 'none', display: 'block' }}>
                                 تسجيل الدخول
-                            </button>
+                            </Link>
                             <button onClick={handleBack} className="lock-btn-secondary">
                                 {isDirectAccess ? 'العودة للصفحات المجانية' : 'إلغاء'}
                             </button>

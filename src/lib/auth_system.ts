@@ -64,7 +64,7 @@ class AuthSystem {
             console.log('❌ No saved device info')
             return false
         }
-        
+
         // Log comparison details
         console.log('🔍 Comparing devices:')
         console.log('   Saved:', {
@@ -83,7 +83,7 @@ class AuthSystem {
             cpu: currentFingerprint.info.cpuCores,
             mem: currentFingerprint.info.memory
         })
-        
+
         // Compare core hardware properties that are identical across all browsers
         // We use screen.width/height (actual screen size, not window size)
         // cpuCores and memory help distinguish different physical devices
@@ -95,13 +95,13 @@ class AuthSystem {
             savedDeviceInfo.cpuCores === currentFingerprint.info.cpuCores &&
             savedDeviceInfo.memory === currentFingerprint.info.memory
         )
-        
+
         if (isSameDevice) {
             console.log('✅ Device matched by hardware properties (cross-browser compatible)')
         } else {
             console.log('❌ Device NOT matched - different device detected')
         }
-        
+
         return isSameDevice
     }
 
@@ -301,7 +301,7 @@ class AuthSystem {
                 // Update last_used and fingerprint (to keep it current)
                 await supabase
                     .from('devices')
-                    .update({ 
+                    .update({
                         last_used: new Date().toISOString(),
                         device_fingerprint: currentFingerprint.hash,
                         device_info: currentFingerprint.info
@@ -439,19 +439,19 @@ class AuthSystem {
             // 5. Compare fingerprints - flexible matching for cross-browser support
             const isExactMatch = device.device_fingerprint === currentFingerprint.hash
             const isFlexibleMatch = this.isMatchingDevice(device.device_info, currentFingerprint)
-            
+
             if (!isExactMatch && !isFlexibleMatch) {
                 // Fingerprint changed and hardware doesn't match - invalidate session
                 await supabase.from('sessions').delete().eq('id', session.id)
                 clearAuthCookies()
                 return { valid: false, error: 'تم الكشف عن تغيير في الجهاز' }
             }
-            
+
             // Update fingerprint if it changed but device matched
             if (!isExactMatch && isFlexibleMatch) {
                 await supabase
                     .from('devices')
-                    .update({ 
+                    .update({
                         device_fingerprint: currentFingerprint.hash,
                         device_info: currentFingerprint.info
                     })
@@ -539,6 +539,114 @@ class AuthSystem {
         } catch (err) {
             console.error('verifyPhoneCode error:', err)
             return { ok: false, error: 'حدث خطأ أثناء التحقق' }
+        }
+    }
+
+    /**
+     * Request Password Reset
+     */
+    async forgotPassword(email: string): Promise<AuthResult> {
+        try {
+            // 1. Find user
+            const { data: user, error } = await supabase
+                .from('users')
+                .select('id, full_name')
+                .eq('email', email.toLowerCase())
+                .single()
+
+            if (error || !user) {
+                // Return success even if user not found for security reasons
+                console.log(`Password reset requested for non-existent email: ${email}`)
+                return { ok: true, message: 'إذا كان البريد الإلكتروني مسجلاً لدينا، فستتلقى رمز تعيين كلمة المرور' }
+            }
+
+            // 2. Generate 6-digit code
+            const code = Math.floor(100000 + Math.random() * 900000).toString()
+
+            // 3. Store code
+            await supabase
+                .from('users')
+                .update({ verification_code: code })
+                .eq('id', user.id)
+
+            // 4. Send real email via Resend
+            try {
+                const { resend } = await import('./resend')
+                const emailResult = await resend.emails.send({
+                    from: 'onboarding@resend.dev',
+                    to: [email],
+                    subject: 'رمز إعادة تعيين كلمة المرور - خبير التوجيهات الذكية',
+                    html: `
+                        <div dir="rtl" style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                            <h2 style="color: #FF6B35;">استعادة كلمة المرور</h2>
+                            <p>أهلاً بك يا ${user.full_name || 'مستخدمنا العزيز'}،</p>
+                            <p>لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بك. يرجى استخدام الرمز التالي:</p>
+                            <div style="background: #f4f4f4; padding: 15px; border-radius: 10px; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; border: 1px dashed #FF6B35; color: #FF6B35;">
+                                ${code}
+                            </div>
+                            <p>إذا لم تكن أنت من طلب هذا، يرجى تجاهل هذا البريد.</p>
+                            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+                            <p style="font-size: 12px; color: #777;">خبير التوجيهات الذكية - جميع الحقوق محفوظة</p>
+                        </div>
+                    `
+                })
+
+                if (emailResult.error) {
+                    console.error('❌ Resend logic error:', emailResult.error)
+                } else {
+                    console.log(`✅ Real email sent! ID: ${emailResult.data?.id}, To: ${email}`)
+                }
+            } catch (emailErr) {
+                console.error('❌ Failed to send real email (catch block):', emailErr)
+            }
+
+            return { ok: true, message: 'تم إرسال رمز إعادة تعيين كلمة المرور إلى بريدك الإلكتروني' }
+        } catch (err) {
+            console.error('forgotPassword error:', err)
+            return { ok: false, error: 'حدث خطأ غير متوقع' }
+        }
+    }
+
+    /**
+     * Reset Password
+     */
+    async resetPassword(email: string, code: string, newPassword: string): Promise<AuthResult> {
+        try {
+            // 1. Verify user and code
+            const { data: user, error } = await supabase
+                .from('users')
+                .select('id, verification_code')
+                .eq('email', email.toLowerCase())
+                .single()
+
+            if (error || !user) {
+                return { ok: false, error: 'البريد الإلكتروني غير موجود' }
+            }
+
+            if (user.verification_code !== code) {
+                return { ok: false, error: 'رمز التحقق غير صحيح' }
+            }
+
+            // 2. Hash new password
+            const passwordHash = await this.hashPassword(newPassword)
+
+            // 3. Update password and clear code
+            const { error: updateError } = await supabase
+                .from('users')
+                .update({
+                    password_hash: passwordHash,
+                    verification_code: null
+                })
+                .eq('id', user.id)
+
+            if (updateError) {
+                return { ok: false, error: 'فشل في تحديث كلمة المرور' }
+            }
+
+            return { ok: true, message: 'تم إعادة تعيين كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول' }
+        } catch (err) {
+            console.error('resetPassword error:', err)
+            return { ok: false, error: 'حدث خطأ غير متوقع' }
         }
     }
 
@@ -643,6 +751,92 @@ class AuthSystem {
         } catch (err) {
             console.error('updateProfile error:', err)
             return { ok: false, error: 'حدث خطأ غير متوقع أثناء التحديث' }
+        }
+    }
+
+    /**
+     * Get user reading progress
+     */
+    async getReadingProgress(userId: string): Promise<any | null> {
+        try {
+            const { data, error } = await supabase
+                .from('reading_progress')
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle()
+
+            if (error) {
+                console.error('Error fetching reading progress:', error)
+                return null
+            }
+
+            // If no record exists, create one
+            if (!data) {
+                const { data: newProgress, error: insertError } = await supabase
+                    .from('reading_progress')
+                    .insert({
+                        user_id: userId,
+                        current_page: 1,
+                        total_pages: TOTAL_BOOK_PAGES,
+                        bookmarks: [],
+                        completion_percentage: 0,
+                        last_read_section: -1,
+                    })
+                    .select()
+                    .single()
+
+                if (insertError) {
+                    console.error('Error creating reading progress:', insertError)
+                    return null
+                }
+                return newProgress
+            }
+
+            return data
+        } catch (err) {
+            console.error('getReadingProgress error:', err)
+            return null
+        }
+    }
+
+    /**
+     * Update user reading progress
+     */
+    async updateReadingProgress(userId: string, updates: { currentPage?: number, completionPercentage?: number, lastReadSection?: number }): Promise<boolean> {
+        try {
+            const payload: any = {}
+            if (updates.currentPage !== undefined) payload.current_page = updates.currentPage
+            if (updates.completionPercentage !== undefined) payload.completion_percentage = updates.completionPercentage
+
+            if (updates.lastReadSection !== undefined) {
+                // التأكد من أن التقدم للأمام فقط
+                const { data: current } = await supabase
+                    .from('reading_progress')
+                    .select('last_read_section')
+                    .eq('user_id', userId)
+                    .maybeSingle()
+
+                if (!current || updates.lastReadSection > (current.last_read_section ?? -1)) {
+                    payload.last_read_section = updates.lastReadSection
+                }
+            }
+
+            if (Object.keys(payload).length === 0) return true
+
+            const { error } = await supabase
+                .from('reading_progress')
+                .update(payload)
+                .eq('user_id', userId)
+
+            if (error) {
+                console.error('Error updating reading progress:', error)
+                return false
+            }
+
+            return true
+        } catch (err) {
+            console.error('updateReadingProgress error:', err)
+            return false
         }
     }
 }

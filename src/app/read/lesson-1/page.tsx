@@ -64,6 +64,17 @@ export default function Lesson1() {
                             <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', margin: 0 }}>
                                 الأولى مع البرومبتات
                             </h1>
+                            <span style={{
+                                padding: '6px 16px',
+                                background: 'rgba(255, 107, 53, 0.15)',
+                                border: '1px solid #FF6B35',
+                                borderRadius: '30px',
+                                fontSize: '0.85rem',
+                                color: '#FF6B35',
+                                fontWeight: '900',
+                            }}>
+                                درس تمهيدي مجاني
+                            </span>
                         </div>
                         <p style={{ fontSize: '1.25rem', color: '#b0b0b0' }}>
                             مقدمة حول كيفية عمل البرومبتات ومتعددة استخدامها في البرمجة
@@ -120,74 +131,106 @@ export default function Lesson1() {
                                     فائدة البرومبتات في البرمجة
                                 </h2>
 
-                                <div className="card" style={{ marginBottom: '20px', padding: '24px' }}>
-                                    <h3 style={{ fontSize: '1.5rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span style={{
-                                            width: '40px',
-                                            height: '40px',
+                                <motion.div
+                                    className="card card-glow"
+                                    style={{
+                                        marginBottom: '20px',
+                                        padding: '24px',
+                                        background: 'rgba(255, 107, 53, 0.04)',
+                                        border: '1px solid rgba(255, 107, 53, 0.15)',
+                                        borderRadius: '16px',
+                                    }}
+                                    whileHover={{ y: -5, background: 'rgba(255, 107, 53, 0.06)' }}
+                                >
+                                    <h3 style={{ fontSize: '1.4rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{
+                                            width: '28px',
+                                            height: '28px',
                                             borderRadius: '50%',
-                                            background: 'linear-gradient(135deg, #FF6B35, #FF8C42)',
+                                            background: '#FF6B35',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            fontSize: '1.25rem',
-                                            fontWeight: '900',
+                                            fontSize: '0.9rem',
+                                            fontWeight: 'bold',
+                                            color: '#fff'
                                         }}>
-                                            1
-                                        </span>
-                                        تسريع عملية التطوير
+                                            ✦
+                                        </div>
+                                        {`تسريع عملية التطوير`}
                                     </h3>
-                                    <p style={{ fontSize: '1rem', color: '#b0b0b0', marginRight: '52px' }}>
+                                    <p style={{ fontSize: '1.05rem', color: '#b0b0b0', marginRight: '40px', lineHeight: '1.6' }}>
                                         البرومبتات تساعدك على إنشاء الكود بشكل أسرع بكثير من الكتابة اليدوية التقليدية،
                                         مما يتيح لك التركيز على المنطق والإبداع بدلاً من التفاصيل الروتينية.
                                     </p>
-                                </div>
+                                </motion.div>
 
-                                <div className="card" style={{ marginBottom: '20px', padding: '24px' }}>
-                                    <h3 style={{ fontSize: '1.5rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span style={{
-                                            width: '40px',
-                                            height: '40px',
+                                <motion.div
+                                    className="card card-glow"
+                                    style={{
+                                        marginBottom: '20px',
+                                        padding: '24px',
+                                        background: 'rgba(255, 107, 53, 0.04)',
+                                        border: '1px solid rgba(255, 107, 53, 0.15)',
+                                        borderRadius: '16px',
+                                    }}
+                                    whileHover={{ y: -5, background: 'rgba(255, 107, 53, 0.06)' }}
+                                >
+                                    <h3 style={{ fontSize: '1.4rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{
+                                            width: '28px',
+                                            height: '28px',
                                             borderRadius: '50%',
-                                            background: 'linear-gradient(135deg, #FF6B35, #FF8C42)',
+                                            background: '#FF6B35',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            fontSize: '1.25rem',
-                                            fontWeight: '900',
+                                            fontSize: '0.9rem',
+                                            fontWeight: 'bold',
+                                            color: '#fff'
                                         }}>
-                                            2
-                                        </span>
-                                        تعلم أفضل الممارسات
+                                            ✦
+                                        </div>
+                                        {`تعلم أفضل الممارسات`}
                                     </h3>
-                                    <p style={{ fontSize: '1rem', color: '#b0b0b0', marginRight: '52px' }}>
+                                    <p style={{ fontSize: '1.05rem', color: '#b0b0b0', marginRight: '40px', lineHeight: '1.6' }}>
                                         عند استخدام البرومبتات بشكل صحيح، يمكنك الحصول على كود يتبع أفضل الممارسات
                                         والمعايير الصناعية، مما يساعدك على تعلم تقنيات جديدة.
                                     </p>
-                                </div>
+                                </motion.div>
 
-                                <div className="card" style={{ padding: '24px' }}>
-                                    <h3 style={{ fontSize: '1.5rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <span style={{
-                                            width: '40px',
-                                            height: '40px',
+                                <motion.div
+                                    className="card card-glow"
+                                    style={{
+                                        padding: '24px',
+                                        background: 'rgba(255, 107, 53, 0.04)',
+                                        border: '1px solid rgba(255, 107, 53, 0.15)',
+                                        borderRadius: '16px',
+                                    }}
+                                    whileHover={{ y: -5, background: 'rgba(255, 107, 53, 0.06)' }}
+                                >
+                                    <h3 style={{ fontSize: '1.4rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                        <div style={{
+                                            width: '28px',
+                                            height: '28px',
                                             borderRadius: '50%',
-                                            background: 'linear-gradient(135deg, #FF6B35, #FF8C42)',
+                                            background: '#FF6B35',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            fontSize: '1.25rem',
-                                            fontWeight: '900',
+                                            fontSize: '0.9rem',
+                                            fontWeight: 'bold',
+                                            color: '#fff'
                                         }}>
-                                            3
-                                        </span>
-                                        حل المشاكل بسرعة
+                                            ✦
+                                        </div>
+                                        {`حل المشاكل بسرعة`}
                                     </h3>
-                                    <p style={{ fontSize: '1rem', color: '#b0b0b0', marginRight: '52px' }}>
+                                    <p style={{ fontSize: '1.05rem', color: '#b0b0b0', marginRight: '40px', lineHeight: '1.6' }}>
                                         يمكنك استخدام البرومبتات لتشخيص الأخطاء وإيجاد حلول للمشاكل التقنية
                                         بشكل أسرع وأكثر فعالية.
                                     </p>
-                                </div>
+                                </motion.div>
                             </section>
                         </motion.div>
 

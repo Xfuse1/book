@@ -222,8 +222,22 @@ class AuthSystem {
                 .eq('user_id', userId)
                 .eq('is_active', true)
 
-            // 5. Compare fingerprints - flexible matching for cross-browser support
-            const matchedDevice = devices?.find(d => {
+            // 5. If no device registered, register this one (first login after registration)
+            if (!devices || devices.length === 0) {
+                const newDeviceId = deviceFingerprint.generateDeviceId()
+                await supabase.from('devices').insert({
+                    user_id: userId,
+                    device_id: newDeviceId,
+                    device_fingerprint: currentFingerprint.hash,
+                    device_info: currentFingerprint.info,
+                    is_active: true
+                })
+                console.log('✅ First device registered for user')
+                return { ok: true, userId: userId }
+            }
+
+            // 6. Compare fingerprints - flexible matching for cross-browser support
+            const matchedDevice = devices.find(d => {
                 // First: try exact hash match
                 if (d.device_fingerprint === currentFingerprint.hash) {
                     console.log('✅ Exact fingerprint match')
@@ -247,7 +261,7 @@ class AuthSystem {
 
                 return { ok: true, userId: userId }
             } else {
-                // Different device or no device registered - reject and sign out
+                // Different device - reject and sign out
                 await supabase.auth.signOut()
                 return {
                     ok: false,
